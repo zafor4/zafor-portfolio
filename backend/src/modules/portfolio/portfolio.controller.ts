@@ -1,4 +1,4 @@
-import { Controller, Get, Post, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ProfileService } from '../profile/profile.service';
 import { ProjectsService } from '../projects/projects.service';
@@ -39,10 +39,23 @@ export class PortfolioController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('admin/media')
+  async getMediaFiles() {
+    return this.minioService.listFiles();
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('admin/upload')
   @UseInterceptors(FileInterceptor('file'))
   async uploadMedia(@UploadedFile() file: Express.Multer.File) {
-    const url = await this.minioService.uploadFile(file);
-    return { url };
+    const result = await this.minioService.uploadFile(file);
+    return typeof result === 'string' ? { url: result } : result;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('admin/media/*')
+  async deleteMedia(@Param('0') key: string) {
+    await this.minioService.deleteFile(key);
+    return { success: true, key };
   }
 }

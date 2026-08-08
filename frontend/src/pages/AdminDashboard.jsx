@@ -4,11 +4,12 @@ import { usePortfolio } from '../context/PortfolioContext';
 import { 
   updateProfileApi, createProjectApi, updateProjectApi, deleteProjectApi,
   createExperienceApi, updateExperienceApi, deleteExperienceApi,
-  createSkillApi, updateSkillApi, deleteSkillApi, updateContactApi, uploadMediaApi 
+  createSkillApi, updateSkillApi, deleteSkillApi, updateContactApi, 
+  uploadMediaApi, fetchMediaApi, deleteMediaApi 
 } from '../services/api';
 import { 
   User, LayoutGrid, Briefcase, Cpu, PhoneCall, Upload, Plus, Trash2, Edit3, 
-  Save, LogOut, CheckCircle, ExternalLink, Globe, Figma, Github, Shield
+  Save, LogOut, CheckCircle, ExternalLink, Shield, Image, Copy, HardDrive, Check
 } from 'lucide-react';
 
 export const AdminDashboard = () => {
@@ -16,6 +17,11 @@ export const AdminDashboard = () => {
   const { data, refreshData } = usePortfolio();
   const [activeTab, setActiveTab] = useState('profile');
   const [statusMsg, setStatusMsg] = useState('');
+  const [copiedUrl, setCopiedUrl] = useState('');
+
+  // Media Library State
+  const [mediaFiles, setMediaFiles] = useState([]);
+  const [mediaLoading, setMediaLoading] = useState(false);
 
   // Form states
   const [profileForm, setProfileForm] = useState(data.profile || {});
@@ -47,6 +53,24 @@ export const AdminDashboard = () => {
     if (data.contact) setContactForm(data.contact);
   }, [data]);
 
+  const loadMediaLibrary = async () => {
+    try {
+      setMediaLoading(true);
+      const files = await fetchMediaApi();
+      setMediaFiles(files || []);
+    } catch (err) {
+      console.error('Failed to load media library:', err);
+    } finally {
+      setMediaLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'media') {
+      loadMediaLibrary();
+    }
+  }, [activeTab]);
+
   const showNotification = (msg) => {
     setStatusMsg(msg);
     setTimeout(() => setStatusMsg(''), 4000);
@@ -57,6 +81,13 @@ export const AdminDashboard = () => {
     navigate('/admin/login');
   };
 
+  const handleCopyUrl = (url) => {
+    navigator.clipboard.writeText(url);
+    setCopiedUrl(url);
+    showNotification('Image URL copied to clipboard!');
+    setTimeout(() => setCopiedUrl(''), 2500);
+  };
+
   // Image File Upload to MinIO
   const handleFileUpload = async (e, callback) => {
     const file = e.target.files[0];
@@ -64,16 +95,29 @@ export const AdminDashboard = () => {
     try {
       showNotification('Uploading asset to MinIO storage...');
       const res = await uploadMediaApi(file);
-      if (res && res.url) {
-        callback(res.url);
+      const uploadedUrl = res.url || res;
+      if (uploadedUrl) {
+        if (callback) callback(uploadedUrl);
         showNotification('File uploaded successfully to MinIO!');
+        if (activeTab === 'media') loadMediaLibrary();
       }
     } catch (err) {
       showNotification('MinIO upload error: ' + (err.response?.data?.message || err.message));
     }
   };
 
-  // Save Profile
+  const handleDeleteMedia = async (key) => {
+    if (!window.confirm('Permanently delete this file from MinIO storage?')) return;
+    try {
+      await deleteMediaApi(key);
+      showNotification('File deleted from MinIO.');
+      loadMediaLibrary();
+    } catch (err) {
+      showNotification('Delete failed: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  // Save Handlers
   const handleSaveProfile = async (e) => {
     e.preventDefault();
     try {
@@ -85,7 +129,6 @@ export const AdminDashboard = () => {
     }
   };
 
-  // Save Contact
   const handleSaveContact = async (e) => {
     e.preventDefault();
     try {
@@ -97,7 +140,6 @@ export const AdminDashboard = () => {
     }
   };
 
-  // Save Project (Create / Update)
   const handleSaveProject = async (e) => {
     e.preventDefault();
     try {
@@ -122,7 +164,6 @@ export const AdminDashboard = () => {
     }
   };
 
-  // Delete Project
   const handleDeleteProject = async (id) => {
     if (!window.confirm('Delete this project?')) return;
     try {
@@ -134,7 +175,6 @@ export const AdminDashboard = () => {
     }
   };
 
-  // Save Experience
   const handleSaveExperience = async (e) => {
     e.preventDefault();
     try {
@@ -164,7 +204,6 @@ export const AdminDashboard = () => {
     }
   };
 
-  // Save Skill
   const handleSaveSkill = async (e) => {
     e.preventDefault();
     try {
@@ -216,7 +255,8 @@ export const AdminDashboard = () => {
               { id: 'projects', label: 'Projects', icon: LayoutGrid },
               { id: 'experience', label: 'Experience', icon: Briefcase },
               { id: 'skills', label: 'Skills', icon: Cpu },
-              { id: 'contact', label: 'Contact Details', icon: PhoneCall }
+              { id: 'contact', label: 'Contact Details', icon: PhoneCall },
+              { id: 'media', label: 'Media Repository', icon: Image }
             ].map(tab => {
               const Icon = tab.icon;
               return (
@@ -238,6 +278,16 @@ export const AdminDashboard = () => {
         </div>
 
         <div className="pt-6 border-t border-border space-y-3">
+          <a
+            href="http://localhost:9001"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors px-2 py-1"
+          >
+            <HardDrive size={14} />
+            <span>MinIO Console (:9001)</span>
+          </a>
+
           <a
             href="/"
             target="_blank"
@@ -372,7 +422,6 @@ export const AdminDashboard = () => {
               </button>
             </div>
 
-            {/* Project Edit/Add Form */}
             <form onSubmit={handleSaveProject} className="bg-card border border-border p-6 rounded-2xl space-y-6">
               <h3 className="text-sm font-bold text-foreground">
                 {editingProject ? `Edit Project: ${editingProject.title}` : 'Add New Project'}
@@ -502,7 +551,6 @@ export const AdminDashboard = () => {
               </div>
             </form>
 
-            {/* Projects List */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {(data.projects || []).map(p => (
                 <div key={p.id} className="bg-card border border-border p-4 rounded-xl flex items-start justify-between gap-4">
@@ -753,6 +801,93 @@ export const AdminDashboard = () => {
                 </button>
               </div>
             </form>
+          </div>
+        )}
+
+        {/* TAB 6: Media Repository & File Manager */}
+        {activeTab === 'media' && (
+          <div className="space-y-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">Media Repository</h1>
+                <p className="text-xs text-muted-foreground">Manage and upload media assets stored directly in MinIO Object Storage.</p>
+              </div>
+              <label className="px-4 py-2 bg-foreground text-background text-xs font-semibold rounded-xl flex items-center gap-1.5 cursor-pointer shadow-md hover:opacity-90">
+                <Upload size={14} />
+                <span>Upload Asset</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={e => handleFileUpload(e)}
+                />
+              </label>
+            </div>
+
+            {/* Drop Zone Box */}
+            <div className="bg-card border-2 border-dashed border-border p-8 rounded-2xl text-center flex flex-col items-center justify-center space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-foreground/10 flex items-center justify-center">
+                <Image size={24} className="text-foreground" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm text-foreground">Upload Media Files to MinIO</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">PNG, JPG, WEBP, or SVG up to 10MB</p>
+              </div>
+              <label className="px-4 py-2 bg-muted hover:bg-muted/80 text-foreground text-xs font-semibold rounded-xl cursor-pointer transition-colors border border-border">
+                Select File
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={e => handleFileUpload(e)}
+                />
+              </label>
+            </div>
+
+            {/* Media Gallery Grid */}
+            {mediaLoading ? (
+              <div className="text-center py-12 text-muted-foreground text-xs font-medium">
+                Loading assets from MinIO bucket...
+              </div>
+            ) : mediaFiles.length === 0 ? (
+              <div className="bg-card border border-border p-12 rounded-2xl text-center text-muted-foreground text-xs">
+                No uploaded media files found in MinIO bucket <code className="bg-muted px-2 py-0.5 rounded font-mono text-[11px]">portfolio-assets</code>. Upload your first file above!
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                {mediaFiles.map((file) => (
+                  <div key={file.key} className="bg-card border border-border rounded-2xl overflow-hidden flex flex-col justify-between group shadow-sm">
+                    <div className="relative aspect-video bg-muted overflow-hidden">
+                      <img src={file.url} alt={file.filename} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    </div>
+                    <div className="p-4 space-y-3">
+                      <div>
+                        <h4 className="font-bold text-xs text-foreground truncate">{file.filename}</h4>
+                        <span className="text-[10px] text-muted-foreground font-mono">
+                          {(file.size / 1024).toFixed(1)} KB
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-border">
+                        <button
+                          onClick={() => handleCopyUrl(file.url)}
+                          className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 bg-muted hover:bg-muted/80 rounded-lg transition-colors cursor-pointer text-foreground"
+                        >
+                          {copiedUrl === file.url ? <Check size={13} className="text-emerald-500" /> : <Copy size={13} />}
+                          <span>{copiedUrl === file.url ? 'Copied' : 'Copy URL'}</span>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteMedia(file.key)}
+                          className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
+                          title="Delete file"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

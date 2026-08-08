@@ -1,6 +1,9 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { S3Client, PutObjectCommand, CreateBucketCommand, HeadBucketCommand, PutBucketPolicyCommand } from '@aws-sdk/client-s3';
+import { 
+  S3Client, PutObjectCommand, CreateBucketCommand, HeadBucketCommand, 
+  PutBucketPolicyCommand, ListObjectsV2Command, DeleteObjectCommand 
+} from '@aws-sdk/client-s3';
 
 @Injectable()
 export class MinioService implements OnModuleInit {
@@ -42,7 +45,6 @@ export class MinioService implements OnModuleInit {
       this.logger.log(`Bucket '${this.bucketName}' not found. Creating...`);
       await this.s3Client.send(new CreateBucketCommand({ Bucket: this.bucketName }));
       
-      // Make bucket publicly readable for portfolio images
       const policy = JSON.stringify({
         Version: '2012-10-17',
         Statement: [
@@ -58,7 +60,7 @@ export class MinioService implements OnModuleInit {
     }
   }
 
-  async uploadFile(file: Express.Multer.File, folder = 'images'): Promise<string> {
+  async uploadFile(file: Express.Multer.File, folder = 'images'): Promise<{ filename: string; url: string; size: number }> {
     await this.ensureBucketExists();
     const filename = `${folder}/${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
     
@@ -73,6 +75,34 @@ export class MinioService implements OnModuleInit {
 
     const endpoint = this.configService.get<string>('MINIO_ENDPOINT', 'localhost');
     const port = this.configService.get<number>('MINIO_PORT', 9000);
-    return `http://${endpoint}:${port}/${this.bucketName}/${filename}`;
+    const url = `http://${endpoint}:${port}/${this.bucketName}/${filename}`;
+
+    return { filename, url, size: file.size };
+  }
+
+  async listFiles() {
+    await this.ensureBucketExists();
+    const res = await this.s3Client.send(new ListObjectsV2Command({ Bucket: this.bucketName }));
+    const endpoint = this.configService.get<string>('MINIO_ENDPOINT', 'localhost');
+    const port = this.configService.get<number>('MINIO_PORT', 9000);
+
+    if (!res.Contents) return [];
+
+    return res.Contents.map((obj) => ({
+      key: obj.Key,
+      filename: obj.Key.split('/').pop(),
+      size: obj.Size,
+      lastModified: obj.LastModified,
+      url: `http://${endpoint}:${port}/${this.bucketName}/${obj.Key}`,
+    }));
+  }
+
+  async deleteFile(key: string) {
+    await this.s3Client.send(
+      new DeleteObjectCommand({
+        Bucket: this.bucketName,
+        Key: key,
+      }),
+    );
   }
 }

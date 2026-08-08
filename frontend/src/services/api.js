@@ -87,3 +87,13 @@ export const uploadMediaApi = async (file) => {
   });
   return response.data;
 };
+
+export const fetchMediaApi = async () => {
+  const response = await api.get('/admin/media');
+  return response.data;
+};
+
+export const deleteMediaApi = async (key) => {
+  const response = await api.delete(`/admin/media/${key}`);
+  return response.data;
+};
