@@ -14,7 +14,7 @@ export const Hero = () => {
           className="text-center my-8 md:my-16"
         >
           <h1 className="text-[13vw] sm:text-[14vw] lg:text-[14.5vw] font-bold leading-[0.85] tracking-tight uppercase text-foreground select-none">
-            ADINA HAWALDAR
+            HUMAYRA ARZOOMAN
           </h1>
         </motion.div>
 

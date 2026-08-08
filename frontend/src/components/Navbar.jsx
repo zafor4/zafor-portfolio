@@ -37,7 +37,7 @@ export const Navbar = () => {
           href="#" 
           className="text-base md:text-lg font-semibold tracking-tight text-foreground hover:opacity-80 transition-opacity"
         >
-          Adina Hawaldar
+          Humayra Arzooman
         </a>
 
         {/* Desktop Nav Links */}

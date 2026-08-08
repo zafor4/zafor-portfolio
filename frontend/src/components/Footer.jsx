@@ -10,7 +10,7 @@ export const Footer = () => {
     <footer className="py-8 bg-background border-t border-foreground/10 text-foreground/60 text-xs sm:text-sm font-medium">
       <div className="max-w-[1800px] w-full mx-auto px-4 md:px-6 lg:px-10 flex items-center justify-between">
         <div>
-          <p>© {new Date().getFullYear()} Adina Hawaldar. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Humayra Arzooman. All rights reserved.</p>
         </div>
 
         <button
