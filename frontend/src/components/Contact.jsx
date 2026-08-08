@@ -33,7 +33,7 @@ export const Contact = () => {
           <div className="lg:col-span-7 overflow-hidden rounded-2xl border border-foreground/10 aspect-[4/3]">
             <img
               src="/assets/professional_office.png"
-              alt="Navi Mumbai Office Workspace"
+              alt="Dhaka Office Workspace"
               className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
             />
           </div>
@@ -47,7 +47,7 @@ export const Contact = () => {
                 LOCATION:
               </span>
               <h3 className="text-2xl md:text-3xl font-bold tracking-wider uppercase">
-                NAVI MUMBAI
+                DHAKA, BANGLADESH
               </h3>
             </div>
 

@@ -21,12 +21,12 @@ export const Hero = () => {
         {/* Info Grid Bar */}
         <div className="border-t border-foreground/15 pt-6 pb-12 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm md:text-base font-medium text-foreground/80">
           <div className="text-left">
-            <span>Cloud Engineer &</span><br />
-            <span>Full-Stack Developer</span>
+            <span>UI/UX Designer &</span><br />
+            <span>Product Designer</span>
           </div>
           <div className="text-center">
             <span>Based in</span><br />
-            <span className="font-semibold text-foreground">Navi Mumbai, India</span>
+            <span className="font-semibold text-foreground">Dhaka, Bangladesh</span>
           </div>
           <div className="text-right">
             <span>Working</span><br />
@@ -64,7 +64,7 @@ export const Hero = () => {
                 <path d="M7 17l9.2-9.2M17 17V7H7" />
               </svg>
             </a>
-            {' '}from India, building high-performance digital experiences where modern design meets scalable technology, cloud innovation, and intelligent solutions.]
+            {' '}from Bangladesh, building high-performance digital experiences where modern design meets scalable technology, cloud innovation, and intelligent solutions.]
           </p>
         </motion.div>
 
