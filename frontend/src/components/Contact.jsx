@@ -1,12 +1,16 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { usePortfolio } from '../context/PortfolioContext';
 
 export const Contact = () => {
+  const { data } = usePortfolio();
+  const contact = data?.contact || {};
+
   const socialLinks = [
-    { name: "LINKEDIN", href: "https://linkedin.com/in/adina-hawaldar-17az6" },
-    { name: "GITHUB", href: "https://github.com/adinahawaldar" },
-    { name: "FIGMA", href: "https://figma.com/@adinahawaldar" },
-    { name: "TWITTER", href: "https://twitter.com/@adina_hawaldar" }
+    { name: "LINKEDIN", href: contact.linkedin || "https://linkedin.com/in/adina-hawaldar-17az6" },
+    { name: "GITHUB", href: contact.github || "https://github.com/adinahawaldar" },
+    { name: "FIGMA", href: contact.figma || "https://figma.com/@adinahawaldar" },
+    { name: "TWITTER", href: contact.twitter || "https://twitter.com/@adina_hawaldar" }
   ];
 
   return (
@@ -32,7 +36,7 @@ export const Contact = () => {
           {/* Left Column: Image */}
           <div className="lg:col-span-7 overflow-hidden rounded-2xl border border-foreground/10 aspect-[4/3]">
             <img
-              src="/assets/professional_office.png"
+              src={contact.officeImageUrl || "/assets/professional_office.png"}
               alt="Dhaka Office Workspace"
               className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
             />
@@ -47,7 +51,7 @@ export const Contact = () => {
                 LOCATION:
               </span>
               <h3 className="text-2xl md:text-3xl font-bold tracking-wider uppercase">
-                DHAKA, BANGLADESH
+                {contact.location || 'DHAKA, BANGLADESH'}
               </h3>
             </div>
 
@@ -60,10 +64,10 @@ export const Contact = () => {
                 EMAIL:
               </span>
               <a
-                href="mailto:adinahawaldar895@gmail.com"
+                href={`mailto:${contact.email || 'adinahawaldar895@gmail.com'}`}
                 className="text-lg sm:text-xl md:text-2xl font-bold tracking-wider uppercase underline decoration-2 underline-offset-8 hover:text-foreground/70 transition-colors break-all"
               >
-                ADINAHAWALDAR895@GMAIL.COM
+                {contact.email || 'ADINAHAWALDAR895@GMAIL.COM'}
               </a>
             </div>
 

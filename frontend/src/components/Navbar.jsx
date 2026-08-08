@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
-import { Sun, Moon, Menu, X } from 'lucide-react';
+import { usePortfolio } from '../context/PortfolioContext';
+import { Sun, Moon, Menu, X, Lock } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
+  const { data } = usePortfolio();
+  const profileName = data?.profile?.name || 'Humayra Arzooman';
+
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -37,7 +42,7 @@ export const Navbar = () => {
           href="#" 
           className="text-base md:text-lg font-semibold tracking-tight text-foreground hover:opacity-80 transition-opacity"
         >
-          Humayra Arzooman
+          {profileName}
         </a>
 
         {/* Desktop Nav Links */}
@@ -54,7 +59,15 @@ export const Navbar = () => {
         </nav>
 
         {/* Action Controls */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3">
+          <Link
+            to="/admin/login"
+            title="Admin Portal"
+            className="p-2 rounded-full border border-foreground/10 text-foreground hover:bg-foreground/5 transition-colors cursor-pointer"
+          >
+            <Lock size={16} />
+          </Link>
+
           <button
             onClick={toggleTheme}
             aria-label="Toggle Theme"
@@ -87,6 +100,13 @@ export const Navbar = () => {
               {link.name}
             </a>
           ))}
+          <Link
+            to="/admin/login"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block text-base font-semibold text-foreground py-2 text-emerald-500"
+          >
+            🔒 Admin Portal
+          </Link>
         </div>
       )}
     </header>

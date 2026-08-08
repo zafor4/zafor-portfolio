@@ -1,27 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { usePortfolio } from '../context/PortfolioContext';
 
 export const Experience = () => {
-  const experiences = [
-    {
-      company: "IDEM Studio",
-      role: "Founder & CEO",
-      duration: "2026 - current",
-      desc: "Founder of Idem Studio, creating modern digital experiences through design, development, AI, and automation from concept to high-performance products."
-    },
-    {
-      company: "HEProAI",
-      role: "Cloud Engineer",
-      duration: "Nov 2025 - Jan 2026",
-      desc: "Architected scalable AWS environments and automated security protocols for high-availability applications."
-    },
-    {
-      company: "Pinnacle Infotech",
-      role: "Cloud Engineer",
-      duration: "June 2024 - Aug 2024",
-      desc: "Deployed enterprise infrastructure using CloudFormation and boosted deployment velocity by 50%."
-    }
-  ];
+  const { data } = usePortfolio();
+  const experiences = data?.experiences || [];
 
   return (
     <section id="experience" className="py-20 md:py-32 bg-background relative border-t border-foreground/10">
@@ -53,7 +36,7 @@ export const Experience = () => {
         <div className="divide-y divide-foreground/10 border-b border-foreground/10">
           {experiences.map((exp, index) => (
             <motion.div
-              key={index}
+              key={exp.id || index}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}

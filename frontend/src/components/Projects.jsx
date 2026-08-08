@@ -1,88 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExternalLink, Github, Figma, LayoutGrid, Globe, Palette, ArrowUpRight } from 'lucide-react';
+import { usePortfolio } from '../context/PortfolioContext';
 
 export const Projects = () => {
+  const { data } = usePortfolio();
+  const projectsData = data?.projects || [];
+
   const [filter, setFilter] = useState('all');
   const [showAll, setShowAll] = useState(false);
-
-  const projectsData = [
-    {
-      id: 1,
-      title: "Snippit",
-      type: "website",
-      image: "/assets/snippit.png",
-      description: "An open-source SaaS starter registry",
-      technologies: ["React", "Tailwind"],
-      github: "https://github.com/adinahawaldar/snippit",
-      live: "https://snippit-dev.vercel.app/"
-    },
-    {
-      id: 2,
-      title: "Zentra",
-      type: "website",
-      image: "/assets/zentra.png",
-      description: "Decentralized Civic Infrastructure Management Platform",
-      technologies: ["React", "Tailwind"],
-      github: "https://github.com/adinahawaldar/zentra",
-      live: "https://zentra-ten.vercel.app/"
-    },
-    {
-      id: 3,
-      title: "Autovion",
-      type: "ui/ux",
-      image: "/assets/autovion.png",
-      description: "Luxury car showroom UI focused on clarity.",
-      technologies: ["Figma", "Branding"],
-      figma: "https://www.figma.com/design/xX2KTf91gwtdpHaCBSghlz/Autovion?t=oSsae7DAQE5zYa9h-1"
-    },
-    {
-      id: 4,
-      title: "Zen",
-      type: "ui/ux",
-      image: "/assets/zen.png",
-      description: "Architecture website design.",
-      technologies: ["Figma", "Prototype"],
-      figma: "https://www.figma.com/design/rMF571Vdq8kAHGTv5srtCp/Untitled?node-id=0-1&t=wTuhogRbZhysb8NY-1"
-    },
-    {
-      id: 5,
-      title: "Smartchain",
-      type: "website",
-      image: "/assets/smartchain.png",
-      description: "AI Supply chain control tower",
-      technologies: ["React", "ML"],
-      github: "https://github.com/adinahawaldar/Smart-chain",
-      live: "https://smart-chain-ossk.vercel.app/"
-    },
-    {
-      id: 6,
-      title: "Artwork",
-      type: "ui/ux",
-      image: "/assets/artwork.png",
-      description: "Artwork Gallery Design.",
-      technologies: ["Figma", "UI"],
-      figma: "https://www.figma.com/design/xe3V32YLb8xSC1xzgDoxOi/Untitled?node-id=0-1&t=cwGM42qXVpOQ5UpF-1"
-    },
-    {
-      id: 7,
-      title: "Law Firm",
-      type: "ui/ux",
-      image: "/assets/lawfirm.png",
-      description: "Law Firm Website Design.",
-      technologies: ["Figma", "UI"],
-      figma: "https://www.figma.com/design/jCyOYI6jSujE0s6aJwg8ca/Untitled?node-id=0-1&t=CuNiBHd9S4i07Pgz-1"
-    },
-    {
-      id: 8,
-      title: "Restaurant",
-      type: "ui/ux",
-      image: "/assets/restaurant.png",
-      description: "Restaurant Website UI.",
-      technologies: ["Figma", "UI"],
-      figma: "https://www.figma.com/design/XOE9NAdIeFFysXMO1A3grl/Rumman-%E2%80%94-Modern-Food-Restaurant-Website-UI-Design--Community-?node-id=0-1&t=6fFiP9DJLS83e11K-1"
-    }
-  ];
 
   const filterTabs = [
     { id: 'all', label: 'All', icon: LayoutGrid },
@@ -93,7 +19,7 @@ export const Projects = () => {
   const filteredProjects = useMemo(() => {
     const list = filter === 'all' ? projectsData : projectsData.filter(p => p.type === filter);
     return showAll ? list : list.slice(0, 5);
-  }, [filter, showAll]);
+  }, [filter, showAll, projectsData]);
 
   return (
     <section id="projects" className="py-20 md:py-32 bg-background relative border-t border-foreground/10">
@@ -143,105 +69,111 @@ export const Projects = () => {
         {/* Project Cards Grid */}
         <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
           <AnimatePresence>
-            {filteredProjects.map((project, index) => (
-              <motion.div
-                key={project.id}
-                layout
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.5, delay: index * 0.08 }}
-                className="group relative flex flex-col bg-foreground/5 dark:bg-card border border-foreground/10 rounded-2xl overflow-hidden hover:border-foreground/30 transition-all duration-500"
-              >
-                {/* Image Container */}
-                <div className="relative aspect-[16/10] overflow-hidden bg-zinc-200 dark:bg-zinc-800">
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full h-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-                    {project.live && (
-                      <a
-                        href={project.live}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-4 py-2 bg-white text-black rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-lg hover:bg-zinc-100 transition-colors"
-                      >
-                        <Globe size={14} />
-                        Website
-                      </a>
-                    )}
-                    {project.github && (
-                      <a
-                        href={project.github}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2.5 bg-black/80 text-white rounded-full hover:bg-black transition-colors"
-                        aria-label="GitHub Repository"
-                      >
-                        <Github size={16} />
-                      </a>
-                    )}
-                    {project.figma && (
-                      <a
-                        href={project.figma}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-4 py-2 bg-black text-white rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-lg hover:bg-zinc-900 transition-colors"
-                      >
-                        <Figma size={14} />
-                        Figma
-                      </a>
-                    )}
-                  </div>
-                </div>
+            {filteredProjects.map((project, index) => {
+              const techList = Array.isArray(project.technologies) 
+                ? project.technologies 
+                : (project.technologies || '').split(',').map(t => t.trim());
 
-                {/* Content Footer */}
-                <div className="p-6 md:p-8 flex flex-col justify-between flex-1">
-                  <div>
-                    <div className="flex items-center justify-between gap-4 mb-2">
-                      <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground group-hover:translate-x-1 transition-transform">
-                        {project.title}
-                      </h3>
-                      {project.live ? (
+              return (
+                <motion.div
+                  key={project.id || index}
+                  layout
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.5, delay: index * 0.08 }}
+                  className="group relative flex flex-col bg-foreground/5 dark:bg-card border border-foreground/10 rounded-2xl overflow-hidden hover:border-foreground/30 transition-all duration-500"
+                >
+                  {/* Image Container */}
+                  <div className="relative aspect-[16/10] overflow-hidden bg-zinc-200 dark:bg-zinc-800">
+                    <img
+                      src={project.image}
+                      alt={project.title}
+                      className="w-full h-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
+                      {project.live && (
                         <a
                           href={project.live}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-foreground/70 hover:text-foreground transition-colors"
+                          className="px-4 py-2 bg-white text-black rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-lg hover:bg-zinc-100 transition-colors"
                         >
-                          <ArrowUpRight size={22} />
+                          <Globe size={14} />
+                          Website
                         </a>
-                      ) : project.figma ? (
+                      )}
+                      {project.github && (
+                        <a
+                          href={project.github}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2.5 bg-black/80 text-white rounded-full hover:bg-black transition-colors"
+                          aria-label="GitHub Repository"
+                        >
+                          <Github size={16} />
+                        </a>
+                      )}
+                      {project.figma && (
                         <a
                           href={project.figma}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-foreground/70 hover:text-foreground transition-colors"
+                          className="px-4 py-2 bg-black text-white rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-lg hover:bg-zinc-900 transition-colors"
                         >
-                          <ArrowUpRight size={22} />
+                          <Figma size={14} />
+                          Figma
                         </a>
-                      ) : null}
+                      )}
                     </div>
-                    <p className="text-sm md:text-base text-foreground/70 mb-6 font-normal">
-                      {project.description}
-                    </p>
                   </div>
 
-                  <div className="flex items-center gap-2 flex-wrap pt-4 border-t border-foreground/10">
-                    {project.technologies.map((tech, i) => (
-                      <span
-                        key={i}
-                        className="px-3 py-1 bg-foreground/10 rounded-full text-xs font-medium text-foreground"
-                      >
-                        {tech}
-                      </span>
-                    ))}
+                  {/* Content Footer */}
+                  <div className="p-6 md:p-8 flex flex-col justify-between flex-1">
+                    <div>
+                      <div className="flex items-center justify-between gap-4 mb-2">
+                        <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground group-hover:translate-x-1 transition-transform">
+                          {project.title}
+                        </h3>
+                        {project.live ? (
+                          <a
+                            href={project.live}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-foreground/70 hover:text-foreground transition-colors"
+                          >
+                            <ArrowUpRight size={22} />
+                          </a>
+                        ) : project.figma ? (
+                          <a
+                            href={project.figma}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-foreground/70 hover:text-foreground transition-colors"
+                          >
+                            <ArrowUpRight size={22} />
+                          </a>
+                        ) : null}
+                      </div>
+                      <p className="text-sm md:text-base text-foreground/70 mb-6 font-normal">
+                        {project.description}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 flex-wrap pt-4 border-t border-foreground/10">
+                      {techList.map((tech, i) => (
+                        <span
+                          key={i}
+                          className="px-3 py-1 bg-foreground/10 rounded-full text-xs font-medium text-foreground"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
         </motion.div>
 
