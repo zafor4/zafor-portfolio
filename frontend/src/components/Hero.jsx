@@ -7,23 +7,23 @@ export const Hero = () => {
   const profile = data?.profile || {};
 
   return (
-    <section id="about" className="relative pt-32 pb-20 md:pt-40 md:pb-32 bg-background overflow-hidden min-h-screen flex flex-col justify-between">
+    <section id="about" className="relative pt-28 pb-16 md:pt-36 md:pb-24 bg-background overflow-hidden min-h-screen flex flex-col justify-between">
       <div className="max-w-[1800px] w-full mx-auto px-4 md:px-6 lg:px-10 flex-1 flex flex-col justify-center">
         
         {/* Main Display Name */}
         <motion.div
-          initial={{ y: 50, opacity: 0 }}
+          initial={{ y: 40, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center my-8 md:my-16"
+          className="text-center my-6 md:my-12"
         >
-          <h1 className="text-[13vw] sm:text-[14vw] lg:text-[14.5vw] font-bold leading-[0.85] tracking-tight uppercase text-foreground select-none">
+          <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-[110px] xl:text-[135px] font-bold leading-[0.9] tracking-tighter uppercase text-foreground select-none">
             {profile.name || 'HUMAYRA ARZOOMAN'}
           </h1>
         </motion.div>
 
         {/* Info Grid Bar */}
-        <div className="border-t border-foreground/15 pt-6 pb-12 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm md:text-base font-medium text-foreground/80">
+        <div className="border-t border-foreground/15 pt-6 pb-10 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm md:text-base font-medium text-foreground/80">
           <div className="text-left">
             <span>{profile.title || 'UI/UX Designer & Product Designer'}</span>
           </div>
@@ -39,12 +39,12 @@ export const Hero = () => {
 
         {/* Bio Intro Statement */}
         <motion.div
-          initial={{ y: 40, opacity: 0, filter: 'blur(10px)' }}
+          initial={{ y: 30, opacity: 0, filter: 'blur(10px)' }}
           animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
-          transition={{ duration: 1.2, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-8 md:mt-16 max-w-5xl mx-auto text-center px-2 sm:px-4"
+          transition={{ duration: 1.2, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-6 md:mt-12 max-w-5xl mx-auto text-center px-2 sm:px-4"
         >
-          <p className="text-xl sm:text-2xl md:text-4xl lg:text-[42px] font-medium leading-[1.25] tracking-tight text-foreground">
+          <p className="text-xl sm:text-2xl md:text-3xl lg:text-[38px] font-medium leading-[1.25] tracking-tight text-foreground">
             {profile.statement || '[A product-focused Designer & Founder from Bangladesh, building high-performance digital experiences.]'}
           </p>
         </motion.div>
@@ -53,8 +53,8 @@ export const Hero = () => {
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 1, delay: 0.6, ease: 'easeOut' }}
-          className="mt-12 md:mt-20 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10"
+          transition={{ duration: 1, delay: 0.5, ease: 'easeOut' }}
+          className="mt-10 md:mt-16 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10"
         >
           {profile.availableForWork !== false && (
             <div className="inline-flex items-center gap-2 px-4 py-2 border border-foreground/20 rounded-full hover:bg-foreground hover:text-background transition-colors duration-300 cursor-pointer group text-xs sm:text-sm font-medium">
