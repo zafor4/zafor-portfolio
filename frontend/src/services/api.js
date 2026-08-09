@@ -19,6 +19,11 @@ export const fetchPortfolioData = async () => {
   return response.data;
 };
 
+export const fetchGithubStatsApi = async (username) => {
+  const response = await api.get(`/github/stats/${username}`);
+  return response.data;
+};
+
 export const loginAdmin = async (email, password) => {
   const response = await api.post('/auth/login', { email, password });
   return response.data;

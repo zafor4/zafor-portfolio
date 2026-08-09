@@ -9,6 +9,7 @@ import { SkillsModule } from './modules/skills/skills.module';
 import { ContactModule } from './modules/contact/contact.module';
 import { PortfolioModule } from './modules/portfolio/portfolio.module';
 import { MinioModule } from './modules/minio/minio.module';
+import { GithubModule } from './modules/github/github.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { MinioModule } from './modules/minio/minio.module';
     SkillsModule,
     ContactModule,
     MinioModule,
+    GithubModule,
     PortfolioModule,
   ],
 })

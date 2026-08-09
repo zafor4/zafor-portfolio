@@ -30,6 +30,14 @@ export class ContactService implements OnModuleInit {
 
   async updateContact(dto: any) {
     const contact = await this.getContact();
+    if (dto.github) {
+      const cleanUrl = dto.github.trim().replace(/\/+$/, '');
+      const parts = cleanUrl.split('/');
+      const extractedUsername = parts.pop();
+      if (extractedUsername && extractedUsername !== 'github.com') {
+        dto.githubUsername = extractedUsername;
+      }
+    }
     return this.prisma.contact.update({
       where: { id: contact.id },
       data: dto,
