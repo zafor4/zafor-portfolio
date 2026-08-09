@@ -9,13 +9,14 @@ import {
 } from '../services/api';
 import { 
   User, LayoutGrid, Briefcase, Cpu, PhoneCall, Upload, Plus, Trash2, Edit3, 
-  Save, LogOut, CheckCircle, ExternalLink, Shield, Image, Copy, HardDrive, Check
+  Save, LogOut, CheckCircle, ExternalLink, Shield, Image, Copy, HardDrive, Check,
+  Eye, Sliders, Search, X, Sparkles, Layers, ArrowUpRight, FolderGit2
 } from 'lucide-react';
 
 export const AdminDashboard = () => {
   const navigate = useNavigate();
   const { data, refreshData } = usePortfolio();
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState('overview');
   const [statusMsg, setStatusMsg] = useState('');
   const [copiedUrl, setCopiedUrl] = useState('');
 
@@ -27,19 +28,24 @@ export const AdminDashboard = () => {
   const [profileForm, setProfileForm] = useState(data.profile || {});
   const [contactForm, setContactForm] = useState(data.contact || {});
   
-  // Project editing
+  // Project editing modal & search
+  const [projectSearch, setProjectSearch] = useState('');
+  const [projectFilterType, setProjectFilterType] = useState('all');
+  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [projectForm, setProjectForm] = useState({
     title: '', type: 'website', image: '', description: '', technologies: 'React, Tailwind', github: '', live: '', figma: ''
   });
 
-  // Experience editing
+  // Experience modal
+  const [isExpModalOpen, setIsExpModalOpen] = useState(false);
   const [editingExp, setEditingExp] = useState(null);
   const [expForm, setExpForm] = useState({ company: '', role: '', duration: '', desc: '' });
 
-  // Skill editing
+  // Skill modal
+  const [isSkillModalOpen, setIsSkillModalOpen] = useState(false);
   const [editingSkill, setEditingSkill] = useState(null);
-  const [skillForm, setSkillForm] = useState({ name: '', category: '', icon: 'Code2', bg: 'bg-foreground/10', color: 'text-foreground' });
+  const [skillForm, setSkillForm] = useState({ name: '', category: 'Frontend Framework', icon: 'Code2', bg: 'bg-foreground/10', color: 'text-foreground' });
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -88,7 +94,7 @@ export const AdminDashboard = () => {
     setTimeout(() => setCopiedUrl(''), 2500);
   };
 
-  // Image File Upload to MinIO
+  // Image Upload Handler
   const handleFileUpload = async (e, callback) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -117,29 +123,31 @@ export const AdminDashboard = () => {
     }
   };
 
-  // Save Handlers
+  // Save Profile & Section Visibility
   const handleSaveProfile = async (e) => {
     e.preventDefault();
     try {
       await updateProfileApi(profileForm);
       await refreshData();
-      showNotification('Profile & Hero details saved!');
+      showNotification('Profile & Section settings saved successfully!');
     } catch (err) {
       showNotification('Save failed: ' + (err.response?.data?.message || err.message));
     }
   };
 
+  // Save Contact Details
   const handleSaveContact = async (e) => {
     e.preventDefault();
     try {
       await updateContactApi(contactForm);
       await refreshData();
-      showNotification('Contact information updated!');
+      showNotification('Contact information updated successfully!');
     } catch (err) {
       showNotification('Save failed: ' + (err.response?.data?.message || err.message));
     }
   };
 
+  // Save Project
   const handleSaveProject = async (e) => {
     e.preventDefault();
     try {
@@ -151,11 +159,12 @@ export const AdminDashboard = () => {
       };
       if (editingProject) {
         await updateProjectApi(editingProject.id, payload);
-        showNotification('Project updated!');
+        showNotification('Project updated successfully!');
       } else {
         await createProjectApi(payload);
-        showNotification('New project added!');
+        showNotification('New project added successfully!');
       }
+      setIsProjectModalOpen(false);
       setEditingProject(null);
       setProjectForm({ title: '', type: 'website', image: '', description: '', technologies: 'React, Tailwind', github: '', live: '', figma: '' });
       await refreshData();
@@ -175,6 +184,27 @@ export const AdminDashboard = () => {
     }
   };
 
+  const openProjectModal = (proj = null) => {
+    if (proj) {
+      setEditingProject(proj);
+      setProjectForm({
+        title: proj.title || '',
+        type: proj.type || 'website',
+        image: proj.image || '',
+        description: proj.description || '',
+        technologies: Array.isArray(proj.technologies) ? proj.technologies.join(', ') : proj.technologies || '',
+        github: proj.github || '',
+        live: proj.live || '',
+        figma: proj.figma || ''
+      });
+    } else {
+      setEditingProject(null);
+      setProjectForm({ title: '', type: 'website', image: '', description: '', technologies: 'React, Tailwind', github: '', live: '', figma: '' });
+    }
+    setIsProjectModalOpen(true);
+  };
+
+  // Save Experience
   const handleSaveExperience = async (e) => {
     e.preventDefault();
     try {
@@ -185,6 +215,7 @@ export const AdminDashboard = () => {
         await createExperienceApi(expForm);
         showNotification('New experience added!');
       }
+      setIsExpModalOpen(false);
       setEditingExp(null);
       setExpForm({ company: '', role: '', duration: '', desc: '' });
       await refreshData();
@@ -204,6 +235,18 @@ export const AdminDashboard = () => {
     }
   };
 
+  const openExpModal = (exp = null) => {
+    if (exp) {
+      setEditingExp(exp);
+      setExpForm({ company: exp.company || '', role: exp.role || '', duration: exp.duration || '', desc: exp.desc || '' });
+    } else {
+      setEditingExp(null);
+      setExpForm({ company: '', role: '', duration: '', desc: '' });
+    }
+    setIsExpModalOpen(true);
+  };
+
+  // Save Skill
   const handleSaveSkill = async (e) => {
     e.preventDefault();
     try {
@@ -214,8 +257,9 @@ export const AdminDashboard = () => {
         await createSkillApi(skillForm);
         showNotification('New skill added!');
       }
+      setIsSkillModalOpen(false);
       setEditingSkill(null);
-      setSkillForm({ name: '', category: '', icon: 'Code2', bg: 'bg-foreground/10', color: 'text-foreground' });
+      setSkillForm({ name: '', category: 'Frontend Framework', icon: 'Code2', bg: 'bg-foreground/10', color: 'text-foreground' });
       await refreshData();
     } catch (err) {
       showNotification('Skill save failed: ' + (err.response?.data?.message || err.message));
@@ -233,149 +277,295 @@ export const AdminDashboard = () => {
     }
   };
 
+  const openSkillModal = (skill = null) => {
+    if (skill) {
+      setEditingSkill(skill);
+      setSkillForm({ name: skill.name || '', category: skill.category || '', icon: skill.icon || 'Code2', bg: skill.bg || 'bg-foreground/10', color: skill.color || 'text-foreground' });
+    } else {
+      setEditingSkill(null);
+      setSkillForm({ name: '', category: 'Frontend Framework', icon: 'Code2', bg: 'bg-foreground/10', color: 'text-foreground' });
+    }
+    setIsSkillModalOpen(true);
+  };
+
+  // Navigation Items
+  const navItems = [
+    { id: 'overview', label: 'Overview & Controls', icon: Sliders, badge: 'Main' },
+    { id: 'profile', label: 'Profile & Hero', icon: User },
+    { id: 'projects', label: 'Projects Portfolio', icon: LayoutGrid, count: data.projects?.length || 0 },
+    { id: 'experience', label: 'Work Experience', icon: Briefcase, count: data.experiences?.length || 0 },
+    { id: 'skills', label: 'Skills & Stack', icon: Cpu, count: data.skills?.length || 0 },
+    { id: 'contact', label: 'Contact & Socials', icon: PhoneCall },
+    { id: 'media', label: 'Media Repository', icon: Image, badge: 'S3' },
+  ];
+
+  // Filtered projects
+  const filteredProjects = (data.projects || []).filter(p => {
+    const matchesSearch = p.title?.toLowerCase().includes(projectSearch.toLowerCase()) || 
+                          p.description?.toLowerCase().includes(projectSearch.toLowerCase());
+    const matchesType = projectFilterType === 'all' || p.type === projectFilterType;
+    return matchesSearch && matchesType;
+  });
+
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row">
+    <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row font-sans">
       
-      {/* Sidebar Navigation */}
-      <aside className="w-full md:w-64 bg-card border-r border-border p-6 flex flex-col justify-between shrink-0">
+      {/* SIDEBAR NAVIGATION */}
+      <aside className="w-full md:w-72 bg-card border-r border-border p-6 flex flex-col justify-between shrink-0">
         <div>
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 rounded-xl bg-foreground/10 flex items-center justify-center">
-              <Shield size={20} className="text-foreground" />
+          {/* Brand Header */}
+          <div className="flex items-center gap-3.5 mb-8 pb-6 border-b border-border">
+            <div className="w-11 h-11 rounded-2xl bg-foreground text-background flex items-center justify-center font-extrabold text-lg shadow-md">
+              H
             </div>
             <div>
-              <h2 className="font-bold text-sm leading-tight text-foreground">CMS Dashboard</h2>
-              <span className="text-[11px] text-muted-foreground">Admin Workspace</span>
+              <h2 className="font-bold text-base leading-tight text-foreground">CMS Studio</h2>
+              <span className="text-xs text-muted-foreground">Humayra Arzooman Admin</span>
             </div>
           </div>
 
+          {/* Navigation Links */}
           <nav className="space-y-1.5">
-            {[
-              { id: 'profile', label: 'Profile & Hero', icon: User },
-              { id: 'projects', label: 'Projects', icon: LayoutGrid },
-              { id: 'experience', label: 'Experience', icon: Briefcase },
-              { id: 'skills', label: 'Skills', icon: Cpu },
-              { id: 'contact', label: 'Contact Details', icon: PhoneCall },
-              { id: 'media', label: 'Media Repository', icon: Image }
-            ].map(tab => {
-              const Icon = tab.icon;
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
               return (
                 <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
-                    activeTab === tab.id
-                      ? 'bg-foreground text-background shadow-md'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                    isActive 
+                      ? 'bg-foreground text-background font-bold shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
                   }`}
                 >
-                  <Icon size={16} />
-                  <span>{tab.label}</span>
+                  <div className="flex items-center gap-3">
+                    <Icon size={17} />
+                    <span>{item.label}</span>
+                  </div>
+                  {item.badge && (
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                      isActive ? 'bg-background/20 text-background' : 'bg-muted border border-border text-foreground/70'
+                    }`}>
+                      {item.badge}
+                    </span>
+                  )}
+                  {item.count !== undefined && !item.badge && (
+                    <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
+                      isActive ? 'bg-background/20 text-background' : 'bg-muted text-muted-foreground'
+                    }`}>
+                      {item.count}
+                    </span>
+                  )}
                 </button>
               );
             })}
           </nav>
         </div>
 
+        {/* Sidebar Footer */}
         <div className="pt-6 border-t border-border space-y-3">
-          <a
-            href="http://localhost:9001"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors px-2 py-1"
-          >
-            <HardDrive size={14} />
-            <span>MinIO Console (:9001)</span>
-          </a>
-
           <a
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors px-2 py-1"
+            className="flex items-center justify-between text-xs font-semibold text-foreground/80 hover:text-foreground bg-muted/50 hover:bg-muted p-3 rounded-xl border border-border transition-colors"
           >
-            <ExternalLink size={14} />
-            <span>View Live Site</span>
+            <div className="flex items-center gap-2">
+              <ExternalLink size={15} />
+              <span>Live Website</span>
+            </div>
+            <ArrowUpRight size={14} className="text-muted-foreground" />
           </a>
 
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-500/10 text-red-500 rounded-xl text-xs font-semibold hover:bg-red-500/20 transition-colors cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 text-red-500 rounded-xl text-xs font-bold hover:bg-red-500/20 transition-colors cursor-pointer"
           >
-            <LogOut size={14} />
+            <LogOut size={15} />
             <span>Sign Out</span>
           </button>
         </div>
       </aside>
 
-      {/* Main Admin Workspace Area */}
-      <main className="flex-1 p-6 md:p-12 overflow-y-auto max-w-6xl">
+      {/* MAIN WORKSPACE AREA */}
+      <main className="flex-1 p-6 md:p-10 overflow-y-auto max-w-6xl mx-auto">
         
+        {/* Status Toast Alert */}
         {statusMsg && (
-          <div className="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-medium flex items-center gap-2">
-            <CheckCircle size={16} />
-            <span>{statusMsg}</span>
+          <div className="mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold flex items-center justify-between gap-2 shadow-xs">
+            <div className="flex items-center gap-2.5">
+              <CheckCircle size={17} />
+              <span>{statusMsg}</span>
+            </div>
+            <button onClick={() => setStatusMsg('')} className="text-emerald-600 dark:text-emerald-400 hover:opacity-75">
+              <X size={15} />
+            </button>
           </div>
         )}
 
-        {/* TAB 1: Profile & Hero */}
+        {/* TAB 1: OVERVIEW & SECTION VISIBILITY CONTROLS */}
+        {activeTab === 'overview' && (
+          <div className="space-y-8">
+            <div>
+              <h1 className="text-2xl font-extrabold text-foreground">Dashboard Overview & Controls</h1>
+              <p className="text-xs text-muted-foreground mt-1">Manage live portfolio status, section visibility toggles, and system metrics.</p>
+            </div>
+
+            {/* Quick Stats Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              <div className="bg-card border border-border p-5 rounded-2xl flex items-center justify-between">
+                <div>
+                  <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Total Projects</span>
+                  <h3 className="text-2xl font-black text-foreground mt-1">{data.projects?.length || 0}</h3>
+                </div>
+                <div className="w-11 h-11 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
+                  <LayoutGrid size={22} />
+                </div>
+              </div>
+
+              <div className="bg-card border border-border p-5 rounded-2xl flex items-center justify-between">
+                <div>
+                  <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Experience Items</span>
+                  <h3 className="text-2xl font-black text-foreground mt-1">{data.experiences?.length || 0}</h3>
+                </div>
+                <div className="w-11 h-11 rounded-2xl bg-purple-500/10 text-purple-500 flex items-center justify-center">
+                  <Briefcase size={22} />
+                </div>
+              </div>
+
+              <div className="bg-card border border-border p-5 rounded-2xl flex items-center justify-between">
+                <div>
+                  <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Skill Badges</span>
+                  <h3 className="text-2xl font-black text-foreground mt-1">{data.skills?.length || 0}</h3>
+                </div>
+                <div className="w-11 h-11 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
+                  <Cpu size={22} />
+                </div>
+              </div>
+
+              <div className="bg-card border border-border p-5 rounded-2xl flex items-center justify-between">
+                <div>
+                  <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">MinIO Storage</span>
+                  <h3 className="text-2xl font-black text-foreground mt-1">Active</h3>
+                </div>
+                <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+                  <HardDrive size={22} />
+                </div>
+              </div>
+            </div>
+
+            {/* Section Visibility Controls Form */}
+            <form onSubmit={handleSaveProfile} className="bg-card border border-border p-8 rounded-2xl space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-border">
+                <div>
+                  <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                    <Eye size={18} className="text-emerald-500" />
+                    <span>Section Visibility Toggles</span>
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">Control which sections appear on the live website in real time.</p>
+                </div>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-foreground text-background font-bold text-xs rounded-xl hover:opacity-90 transition-opacity flex items-center gap-2 cursor-pointer shadow-sm"
+                >
+                  <Save size={14} />
+                  <span>Save Visibility Settings</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+                {[
+                  { key: 'showHero', label: 'Hero / About Section', desc: 'Main banner, display name, and intro statement' },
+                  { key: 'showProjects', label: 'Projects Gallery', desc: 'Showcase grid of websites and UI/UX work' },
+                  { key: 'showExperience', label: 'Work Experience', desc: 'Career timeline & leadership history' },
+                  { key: 'showSkills', label: 'Skills & Stack Matrix', desc: 'Categorized technical capabilities & tools' },
+                  { key: 'showGithub', label: 'GitHub Activity', desc: 'Live contribution heatmap & commit counters' },
+                  { key: 'showContact', label: 'Contact & Footer', desc: 'Office image, inquiry form & social links' },
+                ].map((sec) => (
+                  <label 
+                    key={sec.key} 
+                    className={`flex items-start gap-3.5 p-4 rounded-2xl cursor-pointer border transition-all ${
+                      profileForm[sec.key] !== false 
+                        ? 'bg-foreground/5 border-foreground/30 shadow-xs' 
+                        : 'bg-muted/40 border-border opacity-75'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={profileForm[sec.key] !== false}
+                      onChange={e => setProfileForm({ ...profileForm, [sec.key]: e.target.checked })}
+                      className="mt-1 w-4 h-4 rounded border-border text-foreground accent-foreground cursor-pointer"
+                    />
+                    <div>
+                      <span className="text-xs font-bold text-foreground block">{sec.label}</span>
+                      <span className="text-[11px] text-muted-foreground block mt-0.5 leading-snug">{sec.desc}</span>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* TAB 2: PROFILE & HERO */}
         {activeTab === 'profile' && (
           <div className="space-y-8">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Profile & Hero Banner</h1>
-              <p className="text-xs text-muted-foreground">Manage display name, titles, location, and intro statement.</p>
+              <h1 className="text-2xl font-extrabold text-foreground">Profile & Personal Identity</h1>
+              <p className="text-xs text-muted-foreground mt-1">Manage display name, professional titles, location, and intro statement.</p>
             </div>
 
-            <form onSubmit={handleSaveProfile} className="bg-card border border-border p-6 rounded-2xl space-y-6">
+            <form onSubmit={handleSaveProfile} className="bg-card border border-border p-8 rounded-2xl space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-semibold text-foreground/80 mb-2">Display Name</label>
+                  <label className="block text-xs font-bold text-foreground/90 mb-2">Display Name</label>
                   <input
                     type="text"
                     value={profileForm.name || ''}
                     onChange={e => setProfileForm({ ...profileForm, name: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
+                    className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-sm font-medium focus:outline-none focus:border-foreground transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-foreground/80 mb-2">Job Title / Subtitle</label>
+                  <label className="block text-xs font-bold text-foreground/90 mb-2">Job Title / Subtitle</label>
                   <input
                     type="text"
                     value={profileForm.title || ''}
                     onChange={e => setProfileForm({ ...profileForm, title: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
+                    className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-sm font-medium focus:outline-none focus:border-foreground transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-foreground/80 mb-2">Location</label>
+                  <label className="block text-xs font-bold text-foreground/90 mb-2">Location</label>
                   <input
                     type="text"
                     value={profileForm.location || ''}
                     onChange={e => setProfileForm({ ...profileForm, location: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
+                    className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-sm font-medium focus:outline-none focus:border-foreground transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-foreground/80 mb-2">Resume / CV Download Link</label>
+                  <label className="block text-xs font-bold text-foreground/90 mb-2">Resume / CV Download Link</label>
                   <input
                     type="text"
                     value={profileForm.resumeUrl || ''}
                     onChange={e => setProfileForm({ ...profileForm, resumeUrl: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
+                    className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-sm font-medium focus:outline-none focus:border-foreground transition-colors"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-foreground/80 mb-2">Hero Intro Statement</label>
+                <label className="block text-xs font-bold text-foreground/90 mb-2">Hero Intro Statement</label>
                 <textarea
                   rows={4}
                   value={profileForm.statement || ''}
                   onChange={e => setProfileForm({ ...profileForm, statement: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-sm leading-relaxed"
+                  className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-sm leading-relaxed font-medium focus:outline-none focus:border-foreground transition-colors"
                 />
               </div>
 
@@ -385,198 +575,439 @@ export const AdminDashboard = () => {
                     type="checkbox"
                     checked={profileForm.availableForWork ?? true}
                     onChange={e => setProfileForm({ ...profileForm, availableForWork: e.target.checked })}
-                    className="w-4 h-4 rounded border-border"
+                    className="w-4 h-4 rounded border-border accent-foreground cursor-pointer"
                   />
-                  <span className="text-xs font-semibold">Available for Work Badge</span>
+                  <span className="text-xs font-bold">Show "Available for Work" Badge</span>
                 </label>
 
                 <button
                   type="submit"
-                  className="px-6 py-2.5 bg-foreground text-background font-bold text-xs rounded-xl hover:opacity-90 transition-opacity flex items-center gap-2 cursor-pointer shadow-md"
+                  className="px-6 py-3 bg-foreground text-background font-bold text-xs rounded-xl hover:opacity-90 transition-opacity flex items-center gap-2 cursor-pointer shadow-md"
                 >
-                  <Save size={14} />
-                  <span>Save Changes</span>
+                  <Save size={15} />
+                  <span>Save Profile</span>
                 </button>
               </div>
             </form>
           </div>
         )}
 
-        {/* TAB 2: Projects */}
+        {/* TAB 3: PROJECTS PORTFOLIO */}
         {activeTab === 'projects' && (
           <div className="space-y-8">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Projects Gallery</h1>
-                <p className="text-xs text-muted-foreground">Add, edit, or delete portfolio projects and uploaded images.</p>
+                <h1 className="text-2xl font-extrabold text-foreground">Projects Portfolio</h1>
+                <p className="text-xs text-muted-foreground mt-1">Manage and organize your portfolio showcase items.</p>
               </div>
               <button
-                onClick={() => {
-                  setEditingProject(null);
-                  setProjectForm({ title: '', type: 'website', image: '', description: '', technologies: 'React, Tailwind', github: '', live: '', figma: '' });
-                }}
-                className="px-4 py-2 bg-foreground text-background text-xs font-semibold rounded-xl flex items-center gap-1.5 cursor-pointer shadow-md"
+                onClick={() => openProjectModal()}
+                className="px-5 py-3 bg-foreground text-background font-bold text-xs rounded-xl hover:opacity-90 transition-opacity flex items-center gap-2 cursor-pointer shadow-md"
               >
-                <Plus size={14} />
-                <span>Add Project</span>
+                <Plus size={16} />
+                <span>Add New Project</span>
               </button>
             </div>
 
-            <form onSubmit={handleSaveProject} className="bg-card border border-border p-6 rounded-2xl space-y-6">
-              <h3 className="text-sm font-bold text-foreground">
-                {editingProject ? `Edit Project: ${editingProject.title}` : 'Add New Project'}
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-xs font-semibold mb-2">Project Title</label>
-                  <input
-                    type="text"
-                    required
-                    value={projectForm.title}
-                    onChange={e => setProjectForm({ ...projectForm, title: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold mb-2">Category Type</label>
-                  <select
-                    value={projectForm.type}
-                    onChange={e => setProjectForm({ ...projectForm, type: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
-                  >
-                    <option value="website">Web (Website)</option>
-                    <option value="ui/ux">Design (UI/UX)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold mb-2">Image URL / MinIO Upload</label>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      required
-                      value={projectForm.image}
-                      onChange={e => setProjectForm({ ...projectForm, image: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
-                      placeholder="/assets/snippit.png or MinIO URL"
-                    />
-                    <label className="px-3 py-2 bg-foreground/10 hover:bg-foreground/20 rounded-xl cursor-pointer flex items-center justify-center shrink-0">
-                      <Upload size={16} />
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={e => handleFileUpload(e, url => setProjectForm({ ...projectForm, image: url }))}
-                      />
-                    </label>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold mb-2">Technologies (comma separated)</label>
-                  <input
-                    type="text"
-                    value={Array.isArray(projectForm.technologies) ? projectForm.technologies.join(', ') : projectForm.technologies}
-                    onChange={e => setProjectForm({ ...projectForm, technologies: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
-                    placeholder="React, Tailwind, Figma"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold mb-2">Live Demo URL</label>
-                  <input
-                    type="text"
-                    value={projectForm.live || ''}
-                    onChange={e => setProjectForm({ ...projectForm, live: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
-                    placeholder="https://..."
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold mb-2">GitHub Repository URL</label>
-                  <input
-                    type="text"
-                    value={projectForm.github || ''}
-                    onChange={e => setProjectForm({ ...projectForm, github: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
-                    placeholder="https://github.com/..."
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-xs font-semibold mb-2">Figma Design URL</label>
-                  <input
-                    type="text"
-                    value={projectForm.figma || ''}
-                    onChange={e => setProjectForm({ ...projectForm, figma: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
-                    placeholder="https://figma.com/..."
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-xs font-semibold mb-2">Description</label>
-                  <textarea
-                    rows={3}
-                    value={projectForm.description}
-                    onChange={e => setProjectForm({ ...projectForm, description: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
-                  />
-                </div>
+            {/* Search & Filter Controls */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-card border border-border p-4 rounded-2xl">
+              <div className="relative w-full sm:w-80">
+                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search projects..."
+                  value={projectSearch}
+                  onChange={e => setProjectSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium focus:outline-none"
+                />
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-border">
-                {editingProject && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditingProject(null);
-                      setProjectForm({ title: '', type: 'website', image: '', description: '', technologies: 'React, Tailwind', github: '', live: '', figma: '' });
-                    }}
-                    className="px-4 py-2 bg-muted text-muted-foreground text-xs font-semibold rounded-xl"
-                  >
-                    Cancel
-                  </button>
-                )}
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 <button
-                  type="submit"
-                  className="px-6 py-2 bg-foreground text-background font-bold text-xs rounded-xl hover:opacity-90 shadow-md"
+                  onClick={() => setProjectFilterType('all')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                    projectFilterType === 'all' ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground'
+                  }`}
                 >
-                  {editingProject ? 'Update Project' : 'Save Project'}
+                  All ({data.projects?.length || 0})
+                </button>
+                <button
+                  onClick={() => setProjectFilterType('website')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                    projectFilterType === 'website' ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground'
+                  }`}
+                >
+                  Websites
+                </button>
+                <button
+                  onClick={() => setProjectFilterType('ui/ux')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                    projectFilterType === 'ui/ux' ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground'
+                  }`}
+                >
+                  UI/UX
                 </button>
               </div>
-            </form>
+            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {(data.projects || []).map(p => (
-                <div key={p.id} className="bg-card border border-border p-4 rounded-xl flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3">
-                    <img src={p.image} alt={p.title} className="w-16 h-12 object-cover rounded-lg bg-muted shrink-0" />
-                    <div>
-                      <h4 className="font-bold text-sm text-foreground">{p.title}</h4>
-                      <span className="text-[10px] uppercase font-semibold text-muted-foreground px-2 py-0.5 bg-muted rounded-md inline-block my-1">
-                        {p.type}
-                      </span>
-                      <p className="text-xs text-muted-foreground line-clamp-1">{p.description}</p>
+            {/* Projects Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {filteredProjects.map((proj) => (
+                <div key={proj.id} className="bg-card border border-border rounded-2xl overflow-hidden flex flex-col justify-between group hover:border-foreground/40 transition-colors">
+                  <div>
+                    <div className="relative h-48 bg-muted overflow-hidden">
+                      <img src={proj.image} alt={proj.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <div className="absolute top-3 right-3 flex items-center gap-2">
+                        <span className="px-3 py-1 bg-background/90 backdrop-blur-md rounded-full text-[10px] font-extrabold uppercase tracking-wider text-foreground">
+                          {proj.type}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <h3 className="text-lg font-bold text-foreground">{proj.title}</h3>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">{proj.description}</p>
+                      
+                      <div className="flex flex-wrap gap-1.5 mt-4">
+                        {(proj.technologies || []).map((tech, idx) => (
+                          <span key={idx} className="px-2.5 py-1 bg-muted border border-border rounded-md text-[10px] font-semibold text-foreground/80">
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 shrink-0">
+
+                  <div className="px-6 py-4 border-t border-border flex items-center justify-between bg-muted/30">
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground font-semibold">
+                      {proj.live && <a href={proj.live} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">Live demo ↗</a>}
+                      {proj.github && <a href={proj.github} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">GitHub ↗</a>}
+                      {proj.figma && <a href={proj.figma} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">Figma ↗</a>}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => openProjectModal(proj)}
+                        className="p-2 text-foreground/80 hover:text-foreground hover:bg-muted rounded-lg transition-colors cursor-pointer"
+                        title="Edit Project"
+                      >
+                        <Edit3 size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteProject(proj.id)}
+                        className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
+                        title="Delete Project"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Project Modal / Drawer */}
+            {isProjectModalOpen && (
+              <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+                <div className="bg-card border border-border w-full max-w-2xl rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+                  <div className="flex items-center justify-between border-b border-border pb-4">
+                    <h3 className="text-lg font-bold text-foreground">
+                      {editingProject ? 'Edit Project Details' : 'Add New Project'}
+                    </h3>
+                    <button onClick={() => setIsProjectModalOpen(false)} className="p-2 text-muted-foreground hover:text-foreground">
+                      <X size={18} />
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleSaveProject} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-foreground/80 mb-1.5">Project Title</label>
+                        <input
+                          type="text"
+                          required
+                          value={projectForm.title}
+                          onChange={e => setProjectForm({ ...projectForm, title: e.target.value })}
+                          className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-foreground/80 mb-1.5">Project Category</label>
+                        <select
+                          value={projectForm.type}
+                          onChange={e => setProjectForm({ ...projectForm, type: e.target.value })}
+                          className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                        >
+                          <option value="website">Website / Full Stack</option>
+                          <option value="ui/ux">UI/UX Design</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-foreground/80 mb-1.5">Cover Image URL</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          required
+                          value={projectForm.image}
+                          onChange={e => setProjectForm({ ...projectForm, image: e.target.value })}
+                          className="flex-1 px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                          placeholder="MinIO image URL or /assets/..."
+                        />
+                        <label className="px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-bold hover:bg-muted/80 cursor-pointer flex items-center gap-1.5">
+                          <Upload size={14} />
+                          <span>Upload</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={e => handleFileUpload(e, url => setProjectForm({ ...projectForm, image: url }))}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-foreground/80 mb-1.5">Description</label>
+                      <textarea
+                        rows={3}
+                        required
+                        value={projectForm.description}
+                        onChange={e => setProjectForm({ ...projectForm, description: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-foreground/80 mb-1.5">Technologies (comma separated)</label>
+                      <input
+                        type="text"
+                        value={projectForm.technologies}
+                        onChange={e => setProjectForm({ ...projectForm, technologies: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-foreground/80 mb-1.5">Live URL</label>
+                        <input
+                          type="text"
+                          value={projectForm.live}
+                          onChange={e => setProjectForm({ ...projectForm, live: e.target.value })}
+                          className="w-full px-3 py-2 bg-muted border border-border rounded-xl text-xs font-medium"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-foreground/80 mb-1.5">GitHub Repository</label>
+                        <input
+                          type="text"
+                          value={projectForm.github}
+                          onChange={e => setProjectForm({ ...projectForm, github: e.target.value })}
+                          className="w-full px-3 py-2 bg-muted border border-border rounded-xl text-xs font-medium"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-foreground/80 mb-1.5">Figma File</label>
+                        <input
+                          type="text"
+                          value={projectForm.figma}
+                          onChange={e => setProjectForm({ ...projectForm, figma: e.target.value })}
+                          className="w-full px-3 py-2 bg-muted border border-border rounded-xl text-xs font-medium"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
+                      <button
+                        type="button"
+                        onClick={() => setIsProjectModalOpen(false)}
+                        className="px-5 py-2.5 bg-muted rounded-xl text-xs font-bold cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-6 py-2.5 bg-foreground text-background font-bold text-xs rounded-xl hover:opacity-90 cursor-pointer"
+                      >
+                        Save Project
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 4: WORK EXPERIENCE */}
+        {activeTab === 'experience' && (
+          <div className="space-y-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-extrabold text-foreground">Work Experience</h1>
+                <p className="text-xs text-muted-foreground mt-1">Manage career timeline and leadership history.</p>
+              </div>
+              <button
+                onClick={() => openExpModal()}
+                className="px-5 py-3 bg-foreground text-background font-bold text-xs rounded-xl hover:opacity-90 transition-opacity flex items-center gap-2 cursor-pointer shadow-md"
+              >
+                <Plus size={16} />
+                <span>Add Experience</span>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {(data.experiences || []).map((exp) => (
+                <div key={exp.id} className="bg-card border border-border p-6 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-base font-bold text-foreground">{exp.company}</h3>
+                      <span className="text-[10px] font-bold px-3 py-0.5 rounded-full bg-muted border border-border text-foreground/80">
+                        {exp.duration}
+                      </span>
+                    </div>
+                    <span className="text-xs font-semibold text-emerald-500 block">{exp.role}</span>
+                    <p className="text-xs text-muted-foreground leading-relaxed pt-1 max-w-2xl">{exp.desc}</p>
+                  </div>
+
+                  <div className="flex items-center gap-2 self-end md:self-auto">
                     <button
-                      onClick={() => {
-                        setEditingProject(p);
-                        setProjectForm(p);
-                      }}
-                      className="p-2 hover:bg-muted rounded-lg text-foreground"
+                      onClick={() => openExpModal(exp)}
+                      className="p-2 text-foreground/80 hover:text-foreground hover:bg-muted rounded-xl transition-colors cursor-pointer"
+                    >
+                      <Edit3 size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteExperience(exp.id)}
+                      className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-colors cursor-pointer"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Experience Modal */}
+            {isExpModalOpen && (
+              <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+                <div className="bg-card border border-border w-full max-w-xl rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl">
+                  <div className="flex items-center justify-between border-b border-border pb-4">
+                    <h3 className="text-lg font-bold text-foreground">
+                      {editingExp ? 'Edit Experience' : 'Add Experience Entry'}
+                    </h3>
+                    <button onClick={() => setIsExpModalOpen(false)} className="p-2 text-muted-foreground hover:text-foreground">
+                      <X size={18} />
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleSaveExperience} className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-foreground/80 mb-1.5">Company Name</label>
+                      <input
+                        type="text"
+                        required
+                        value={expForm.company}
+                        onChange={e => setExpForm({ ...expForm, company: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-foreground/80 mb-1.5">Role / Position Title</label>
+                      <input
+                        type="text"
+                        required
+                        value={expForm.role}
+                        onChange={e => setExpForm({ ...expForm, role: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-foreground/80 mb-1.5">Duration</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. 2026 - current"
+                        value={expForm.duration}
+                        onChange={e => setExpForm({ ...expForm, duration: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-foreground/80 mb-1.5">Description & Key Achievements</label>
+                      <textarea
+                        rows={3}
+                        required
+                        value={expForm.desc}
+                        onChange={e => setExpForm({ ...expForm, desc: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
+                      <button
+                        type="button"
+                        onClick={() => setIsExpModalOpen(false)}
+                        className="px-5 py-2.5 bg-muted rounded-xl text-xs font-bold cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-6 py-2.5 bg-foreground text-background font-bold text-xs rounded-xl hover:opacity-90 cursor-pointer"
+                      >
+                        Save Entry
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 5: SKILLS MATRIX */}
+        {activeTab === 'skills' && (
+          <div className="space-y-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-extrabold text-foreground">Skills Matrix & Stack</h1>
+                <p className="text-xs text-muted-foreground mt-1">Manage technical stack tools and capabilities badges.</p>
+              </div>
+              <button
+                onClick={() => openSkillModal()}
+                className="px-5 py-3 bg-foreground text-background font-bold text-xs rounded-xl hover:opacity-90 transition-opacity flex items-center gap-2 cursor-pointer shadow-md"
+              >
+                <Plus size={16} />
+                <span>Add Skill Badge</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {(data.skills || []).map((skill) => (
+                <div key={skill.id} className="bg-card border border-border p-4 rounded-2xl flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-sm text-foreground">{skill.name}</span>
+                    </div>
+                    <span className="text-[11px] text-muted-foreground block mt-0.5">{skill.category}</span>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => openSkillModal(skill)}
+                      className="p-1.5 text-foreground/80 hover:text-foreground hover:bg-muted rounded-lg transition-colors cursor-pointer"
                     >
                       <Edit3 size={15} />
                     </button>
                     <button
-                      onClick={() => handleDeleteProject(p.id)}
-                      className="p-2 hover:bg-red-500/10 text-red-500 rounded-lg"
+                      onClick={() => handleDeleteSkill(skill.id)}
+                      className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
                     >
                       <Trash2 size={15} />
                     </button>
@@ -584,219 +1015,165 @@ export const AdminDashboard = () => {
                 </div>
               ))}
             </div>
+
+            {/* Skill Modal */}
+            {isSkillModalOpen && (
+              <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+                <div className="bg-card border border-border w-full max-w-lg rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl">
+                  <div className="flex items-center justify-between border-b border-border pb-4">
+                    <h3 className="text-lg font-bold text-foreground">
+                      {editingSkill ? 'Edit Skill Badge' : 'Add Skill Badge'}
+                    </h3>
+                    <button onClick={() => setIsSkillModalOpen(false)} className="p-2 text-muted-foreground hover:text-foreground">
+                      <X size={18} />
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleSaveSkill} className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-foreground/80 mb-1.5">Skill / Tool Name</label>
+                      <input
+                        type="text"
+                        required
+                        value={skillForm.name}
+                        onChange={e => setSkillForm({ ...skillForm, name: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-foreground/80 mb-1.5">Category</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. UI/UX Design or Frontend Framework"
+                        value={skillForm.category}
+                        onChange={e => setSkillForm({ ...skillForm, category: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
+                      <button
+                        type="button"
+                        onClick={() => setIsSkillModalOpen(false)}
+                        className="px-5 py-2.5 bg-muted rounded-xl text-xs font-bold cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-6 py-2.5 bg-foreground text-background font-bold text-xs rounded-xl hover:opacity-90 cursor-pointer"
+                      >
+                        Save Skill
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
-        {/* TAB 3: Experience */}
-        {activeTab === 'experience' && (
-          <div className="space-y-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">Work Experience</h1>
-                <p className="text-xs text-muted-foreground">Manage work history and roles.</p>
-              </div>
-              <button
-                onClick={() => {
-                  setEditingExp(null);
-                  setExpForm({ company: '', role: '', duration: '', desc: '' });
-                }}
-                className="px-4 py-2 bg-foreground text-background text-xs font-semibold rounded-xl flex items-center gap-1.5 cursor-pointer shadow-md"
-              >
-                <Plus size={14} />
-                <span>Add Entry</span>
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveExperience} className="bg-card border border-border p-6 rounded-2xl space-y-4">
-              <h3 className="text-sm font-bold text-foreground">
-                {editingExp ? `Edit: ${editingExp.company}` : 'Add Experience Entry'}
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <input
-                  type="text"
-                  placeholder="Company Name"
-                  required
-                  value={expForm.company}
-                  onChange={e => setExpForm({ ...expForm, company: e.target.value })}
-                  className="px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
-                />
-                <input
-                  type="text"
-                  placeholder="Role Title"
-                  required
-                  value={expForm.role}
-                  onChange={e => setExpForm({ ...expForm, role: e.target.value })}
-                  className="px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
-                />
-                <input
-                  type="text"
-                  placeholder="Duration (e.g. 2026 - current)"
-                  required
-                  value={expForm.duration}
-                  onChange={e => setExpForm({ ...expForm, duration: e.target.value })}
-                  className="px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
-                />
-                <div className="md:col-span-3">
-                  <textarea
-                    rows={3}
-                    placeholder="Description of achievements and responsibilities..."
-                    value={expForm.desc}
-                    onChange={e => setExpForm({ ...expForm, desc: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end gap-2">
-                <button type="submit" className="px-6 py-2 bg-foreground text-background font-bold text-xs rounded-xl">
-                  {editingExp ? 'Update' : 'Save'}
-                </button>
-              </div>
-            </form>
-
-            <div className="space-y-3">
-              {(data.experiences || []).map(e => (
-                <div key={e.id} className="bg-card border border-border p-4 rounded-xl flex items-center justify-between">
-                  <div>
-                    <h4 className="font-bold text-sm text-foreground">{e.company} <span className="font-normal text-muted-foreground">({e.role})</span></h4>
-                    <span className="text-xs font-semibold text-muted-foreground">{e.duration}</span>
-                    <p className="text-xs text-foreground/80 mt-1">{e.desc}</p>
-                  </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button onClick={() => { setEditingExp(e); setExpForm(e); }} className="p-2 hover:bg-muted rounded-lg text-foreground"><Edit3 size={15} /></button>
-                    <button onClick={() => handleDeleteExperience(e.id)} className="p-2 hover:bg-red-500/10 text-red-500 rounded-lg"><Trash2 size={15} /></button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* TAB 4: Skills */}
-        {activeTab === 'skills' && (
-          <div className="space-y-8">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Skills Matrix</h1>
-              <p className="text-xs text-muted-foreground">Manage technical competencies and categories.</p>
-            </div>
-
-            <form onSubmit={handleSaveSkill} className="bg-card border border-border p-6 rounded-2xl space-y-4">
-              <h3 className="text-sm font-bold text-foreground">{editingSkill ? `Edit Skill: ${editingSkill.name}` : 'Add Skill'}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input
-                  type="text"
-                  placeholder="Skill Name (e.g. React)"
-                  required
-                  value={skillForm.name}
-                  onChange={e => setSkillForm({ ...skillForm, name: e.target.value })}
-                  className="px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
-                />
-                <input
-                  type="text"
-                  placeholder="Category (e.g. Frontend Framework)"
-                  required
-                  value={skillForm.category}
-                  onChange={e => setSkillForm({ ...skillForm, category: e.target.value })}
-                  className="px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
-                />
-              </div>
-              <div className="flex justify-end">
-                <button type="submit" className="px-6 py-2 bg-foreground text-background font-bold text-xs rounded-xl">
-                  {editingSkill ? 'Update' : 'Save'}
-                </button>
-              </div>
-            </form>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {(data.skills || []).map(s => (
-                <div key={s.id || s.name} className="bg-card border border-border p-3 rounded-xl flex items-center justify-between">
-                  <div>
-                    <h5 className="font-bold text-xs text-foreground">{s.name}</h5>
-                    <span className="text-[10px] text-muted-foreground">{s.category}</span>
-                  </div>
-                  <button onClick={() => handleDeleteSkill(s.id)} className="p-1.5 hover:bg-red-500/10 text-red-500 rounded-lg"><Trash2 size={13} /></button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* TAB 5: Contact */}
+        {/* TAB 6: CONTACT & SOCIAL LINKS */}
         {activeTab === 'contact' && (
           <div className="space-y-8">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Contact & Social Links</h1>
-              <p className="text-xs text-muted-foreground">Manage location, email, and social profiles.</p>
+              <h1 className="text-2xl font-extrabold text-foreground">Contact & Social Links</h1>
+              <p className="text-xs text-muted-foreground mt-1">Manage office imagery, email, location, and social profile links.</p>
             </div>
 
-            <form onSubmit={handleSaveContact} className="bg-card border border-border p-6 rounded-2xl space-y-6">
+            <form onSubmit={handleSaveContact} className="bg-card border border-border p-8 rounded-2xl space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-semibold mb-2">Location Header</label>
+                  <label className="block text-xs font-bold text-foreground/90 mb-2">Office Location</label>
                   <input
                     type="text"
                     value={contactForm.location || ''}
                     onChange={e => setContactForm({ ...contactForm, location: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
+                    className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-sm font-medium"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold mb-2">Email Address</label>
+                  <label className="block text-xs font-bold text-foreground/90 mb-2">Contact Email</label>
                   <input
                     type="email"
                     value={contactForm.email || ''}
                     onChange={e => setContactForm({ ...contactForm, email: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
+                    className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-sm font-medium"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold mb-2">LinkedIn URL</label>
-                  <input
-                    type="text"
-                    value={contactForm.linkedin || ''}
-                    onChange={e => setContactForm({ ...contactForm, linkedin: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold mb-2">GitHub Profile URL</label>
+                  <label className="block text-xs font-bold text-foreground/90 mb-2">GitHub Profile URL</label>
                   <input
                     type="text"
                     value={contactForm.github || ''}
                     onChange={e => setContactForm({ ...contactForm, github: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
+                    className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-sm font-medium"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold mb-2">Figma Profile URL</label>
+                  <label className="block text-xs font-bold text-foreground/90 mb-2">LinkedIn Profile URL</label>
+                  <input
+                    type="text"
+                    value={contactForm.linkedin || ''}
+                    onChange={e => setContactForm({ ...contactForm, linkedin: e.target.value })}
+                    className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-sm font-medium"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-foreground/90 mb-2">Figma Profile URL</label>
                   <input
                     type="text"
                     value={contactForm.figma || ''}
                     onChange={e => setContactForm({ ...contactForm, figma: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
+                    className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-sm font-medium"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold mb-2">Twitter Profile URL</label>
+                  <label className="block text-xs font-bold text-foreground/90 mb-2">Twitter Profile URL</label>
                   <input
                     type="text"
                     value={contactForm.twitter || ''}
                     onChange={e => setContactForm({ ...contactForm, twitter: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-sm"
+                    className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-sm font-medium"
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end pt-4 border-t border-border">
+              <div>
+                <label className="block text-xs font-bold text-foreground/90 mb-2">Office / Studio Image URL</label>
+                <div className="flex gap-3">
+                  <input
+                    type="text"
+                    value={contactForm.officeImageUrl || ''}
+                    onChange={e => setContactForm({ ...contactForm, officeImageUrl: e.target.value })}
+                    className="flex-1 px-4 py-3 bg-muted border border-border rounded-xl text-sm font-medium"
+                  />
+                  <label className="px-5 py-3 bg-muted border border-border rounded-xl text-xs font-bold hover:bg-muted/80 cursor-pointer flex items-center gap-2 shrink-0">
+                    <Upload size={15} />
+                    <span>Upload to MinIO</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={e => handleFileUpload(e, url => setContactForm({ ...contactForm, officeImageUrl: url }))}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end pt-4 border-t border-border">
                 <button
                   type="submit"
-                  className="px-6 py-2.5 bg-foreground text-background font-bold text-xs rounded-xl hover:opacity-90 transition-opacity flex items-center gap-2 cursor-pointer shadow-md"
+                  className="px-6 py-3 bg-foreground text-background font-bold text-xs rounded-xl hover:opacity-90 transition-opacity flex items-center gap-2 cursor-pointer shadow-md"
                 >
-                  <Save size={14} />
+                  <Save size={15} />
                   <span>Save Contact Details</span>
                 </button>
               </div>
@@ -804,90 +1181,98 @@ export const AdminDashboard = () => {
           </div>
         )}
 
-        {/* TAB 6: Media Repository & File Manager */}
+        {/* TAB 7: MEDIA REPOSITORY */}
         {activeTab === 'media' && (
           <div className="space-y-8">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Media Repository</h1>
-                <p className="text-xs text-muted-foreground">Manage and upload media assets stored directly in MinIO Object Storage.</p>
+                <h1 className="text-2xl font-extrabold text-foreground flex items-center gap-2.5">
+                  <HardDrive size={24} className="text-emerald-500" />
+                  <span>MinIO Media Repository</span>
+                </h1>
+                <p className="text-xs text-muted-foreground mt-1">Manage files, images, and static assets in S3 object storage.</p>
               </div>
-              <label className="px-4 py-2 bg-foreground text-background text-xs font-semibold rounded-xl flex items-center gap-1.5 cursor-pointer shadow-md hover:opacity-90">
-                <Upload size={14} />
-                <span>Upload Asset</span>
+
+              <a
+                href="http://localhost:9001"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2.5 bg-muted border border-border hover:bg-muted/80 rounded-xl text-xs font-bold text-foreground flex items-center gap-2 transition-colors"
+              >
+                <ExternalLink size={14} />
+                <span>MinIO Console</span>
+              </a>
+            </div>
+
+            {/* Drag & Drop Upload Zone */}
+            <div className="bg-card border-2 border-dashed border-border rounded-3xl p-8 text-center space-y-4">
+              <div className="w-14 h-14 rounded-2xl bg-foreground/10 flex items-center justify-center mx-auto text-foreground">
+                <Upload size={24} />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-foreground">Upload Files to MinIO Storage</h3>
+                <p className="text-xs text-muted-foreground mt-1">Direct S3 bucket sync for portfolio assets.</p>
+              </div>
+              <label className="inline-flex items-center gap-2 px-6 py-3 bg-foreground text-background font-bold text-xs rounded-xl hover:opacity-90 cursor-pointer shadow-md">
+                <span>Select File from Computer</span>
                 <input
                   type="file"
-                  accept="image/*"
-                  className="hidden"
                   onChange={e => handleFileUpload(e)}
+                  className="hidden"
                 />
               </label>
             </div>
 
-            {/* Drop Zone Box */}
-            <div className="bg-card border-2 border-dashed border-border p-8 rounded-2xl text-center flex flex-col items-center justify-center space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-foreground/10 flex items-center justify-center">
-                <Image size={24} className="text-foreground" />
+            {/* Media Gallery */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold text-foreground">Uploaded Assets ({mediaFiles.length})</h3>
+                <button
+                  onClick={loadMediaLibrary}
+                  className="text-xs text-muted-foreground hover:text-foreground font-semibold"
+                >
+                  Refresh list
+                </button>
               </div>
-              <div>
-                <h3 className="font-bold text-sm text-foreground">Upload Media Files to MinIO</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">PNG, JPG, WEBP, or SVG up to 10MB</p>
-              </div>
-              <label className="px-4 py-2 bg-muted hover:bg-muted/80 text-foreground text-xs font-semibold rounded-xl cursor-pointer transition-colors border border-border">
-                Select File
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={e => handleFileUpload(e)}
-                />
-              </label>
-            </div>
 
-            {/* Media Gallery Grid */}
-            {mediaLoading ? (
-              <div className="text-center py-12 text-muted-foreground text-xs font-medium">
-                Loading assets from MinIO bucket...
-              </div>
-            ) : mediaFiles.length === 0 ? (
-              <div className="bg-card border border-border p-12 rounded-2xl text-center text-muted-foreground text-xs">
-                No uploaded media files found in MinIO bucket <code className="bg-muted px-2 py-0.5 rounded font-mono text-[11px]">portfolio-assets</code>. Upload your first file above!
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                {mediaFiles.map((file) => (
-                  <div key={file.key} className="bg-card border border-border rounded-2xl overflow-hidden flex flex-col justify-between group shadow-sm">
-                    <div className="relative aspect-video bg-muted overflow-hidden">
-                      <img src={file.url} alt={file.filename} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                    </div>
-                    <div className="p-4 space-y-3">
-                      <div>
-                        <h4 className="font-bold text-xs text-foreground truncate">{file.filename}</h4>
-                        <span className="text-[10px] text-muted-foreground font-mono">
-                          {(file.size / 1024).toFixed(1)} KB
-                        </span>
+              {mediaLoading ? (
+                <p className="text-xs text-muted-foreground py-8 text-center">Loading MinIO bucket objects...</p>
+              ) : mediaFiles.length === 0 ? (
+                <div className="bg-card border border-border p-8 rounded-2xl text-center text-xs text-muted-foreground">
+                  No uploaded files found in MinIO bucket.
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {mediaFiles.map((file) => (
+                    <div key={file.key} className="bg-card border border-border rounded-2xl overflow-hidden p-3 flex flex-col justify-between space-y-3 group hover:border-foreground/40 transition-colors">
+                      <div className="aspect-square bg-muted rounded-xl overflow-hidden relative">
+                        <img src={file.url} alt={file.key} className="w-full h-full object-cover" />
                       </div>
-                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-border">
+                      <div>
+                        <span className="text-[11px] font-bold text-foreground block truncate" title={file.key}>{file.key}</span>
+                        <span className="text-[10px] text-muted-foreground block">{(file.size / 1024).toFixed(1)} KB</span>
+                      </div>
+                      <div className="flex items-center gap-2 pt-2 border-t border-border">
                         <button
                           onClick={() => handleCopyUrl(file.url)}
-                          className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 bg-muted hover:bg-muted/80 rounded-lg transition-colors cursor-pointer text-foreground"
+                          className="flex-1 py-1.5 bg-muted hover:bg-muted/80 rounded-lg text-[10px] font-bold text-foreground flex items-center justify-center gap-1 cursor-pointer transition-colors"
                         >
-                          {copiedUrl === file.url ? <Check size={13} className="text-emerald-500" /> : <Copy size={13} />}
-                          <span>{copiedUrl === file.url ? 'Copied' : 'Copy URL'}</span>
+                          {copiedUrl === file.url ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
+                          <span>{copiedUrl === file.url ? 'Copied!' : 'Copy URL'}</span>
                         </button>
                         <button
                           onClick={() => handleDeleteMedia(file.key)}
                           className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
-                          title="Delete file"
+                          title="Delete from MinIO"
                         >
-                          <Trash2 size={15} />
+                          <Trash2 size={13} />
                         </button>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 

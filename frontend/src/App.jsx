@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
-import { PortfolioProvider } from './context/PortfolioContext';
+import { PortfolioProvider, usePortfolio } from './context/PortfolioContext';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { Projects } from './components/Projects';
@@ -13,17 +13,20 @@ import { Footer } from './components/Footer';
 import { AdminLogin } from './pages/AdminLogin';
 import { AdminDashboard } from './pages/AdminDashboard';
 
-function LivePortfolio() {
+function LivePortfolioContent() {
+  const { data } = usePortfolio();
+  const profile = data?.profile || {};
+
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-foreground selection:text-background">
       <Navbar />
       <main>
-        <Hero />
-        <Projects />
-        <Experience />
-        <Skills />
-        <GitHubStats />
-        <Contact />
+        {profile.showHero !== false && <Hero />}
+        {profile.showProjects !== false && <Projects />}
+        {profile.showExperience !== false && <Experience />}
+        {profile.showSkills !== false && <Skills />}
+        {profile.showGithub !== false && <GitHubStats />}
+        {profile.showContact !== false && <Contact />}
       </main>
       <Footer />
     </div>
@@ -36,7 +39,7 @@ export default function App() {
       <PortfolioProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<LivePortfolio />} />
+            <Route path="/" element={<LivePortfolioContent />} />
             <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />

@@ -26,6 +26,12 @@ model Profile {
   availableForWork Boolean  @default(true)
   resumeUrl        String   @default("/resume.pdf")
   avatarUrl        String   @default("/assets/adina.jpeg")
+  showHero         Boolean  @default(true)
+  showProjects     Boolean  @default(true)
+  showExperience   Boolean  @default(true)
+  showSkills       Boolean  @default(true)
+  showGithub       Boolean  @default(true)
+  showContact      Boolean  @default(true)
   updatedAt        DateTime @updatedAt
 
   @@map("profile")

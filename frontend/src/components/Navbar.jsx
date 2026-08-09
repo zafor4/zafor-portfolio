@@ -7,7 +7,8 @@ import { Link } from 'react-router-dom';
 export const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
   const { data } = usePortfolio();
-  const profileName = data?.profile?.name || 'Humayra Arzooman';
+  const profile = data?.profile || {};
+  const profileName = profile.name || 'Humayra Arzooman';
 
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -24,13 +25,15 @@ export const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
-    { name: 'About', href: '#about' },
-    { name: 'Projects', href: '#projects' },
-    { name: 'Experience', href: '#experience' },
-    { name: 'Skills', href: '#skills' },
-    { name: 'Contact', href: '#contact' },
+  const allLinks = [
+    { name: 'About', href: '#about', visible: profile.showHero !== false },
+    { name: 'Projects', href: '#projects', visible: profile.showProjects !== false },
+    { name: 'Experience', href: '#experience', visible: profile.showExperience !== false },
+    { name: 'Skills', href: '#skills', visible: profile.showSkills !== false },
+    { name: 'Contact', href: '#contact', visible: profile.showContact !== false },
   ];
+
+  const navLinks = allLinks.filter(link => link.visible);
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${

@@ -11,7 +11,13 @@ const defaultData = {
     statement: '[A product-focused Designer & Founder from Bangladesh, building high-performance digital experiences where modern design meets scalable technology, cloud innovation, and intelligent solutions.]',
     availableForWork: true,
     resumeUrl: '/resume.pdf',
-    avatarUrl: '/assets/adina.jpeg'
+    avatarUrl: '/assets/adina.jpeg',
+    showHero: true,
+    showProjects: true,
+    showExperience: true,
+    showSkills: true,
+    showGithub: true,
+    showContact: true,
   },
   projects: [
     {
@@ -151,11 +157,11 @@ export const PortfolioProvider = ({ children }) => {
       const res = await fetchPortfolioData();
       if (res && res.profile) {
         setData({
-          profile: res.profile || defaultData.profile,
+          profile: { ...defaultData.profile, ...res.profile },
           projects: res.projects?.length ? res.projects : defaultData.projects,
           experiences: res.experiences?.length ? res.experiences : defaultData.experiences,
           skills: res.skills?.length ? res.skills : defaultData.skills,
-          contact: res.contact || defaultData.contact,
+          contact: res.contact ? { ...defaultData.contact, ...res.contact } : defaultData.contact,
         });
       }
     } catch (err) {
