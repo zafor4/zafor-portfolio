@@ -60,9 +60,10 @@ export class MinioService implements OnModuleInit {
     }
   }
 
-  async uploadFile(file: Express.Multer.File, folder = 'images'): Promise<{ filename: string; url: string; size: number }> {
+  async uploadFile(file: Express.Multer.File, folder = 'images'): Promise<{ filename: string; url: string; size: number; key: string }> {
     await this.ensureBucketExists();
-    const filename = `${folder}/${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+    const cleanFolder = folder.replace(/[^a-zA-Z0-9_-]/g, '') || 'images';
+    const filename = `${cleanFolder}/${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
     
     await this.s3Client.send(
       new PutObjectCommand({
@@ -77,7 +78,7 @@ export class MinioService implements OnModuleInit {
     const port = this.configService.get<number>('MINIO_PORT', 9000);
     const url = `http://${endpoint}:${port}/${this.bucketName}/${filename}`;
 
-    return { filename, url, size: file.size };
+    return { key: filename, filename, url, size: file.size };
   }
 
   async listFiles() {
@@ -88,13 +89,19 @@ export class MinioService implements OnModuleInit {
 
     if (!res.Contents) return [];
 
-    return res.Contents.map((obj) => ({
-      key: obj.Key,
-      filename: obj.Key.split('/').pop(),
-      size: obj.Size,
-      lastModified: obj.LastModified,
-      url: `http://${endpoint}:${port}/${this.bucketName}/${obj.Key}`,
-    }));
+    return res.Contents.map((obj) => {
+      const parts = obj.Key.split('/');
+      const folder = parts.length > 1 ? parts[0] : 'root';
+      const filename = parts.pop();
+      return {
+        key: obj.Key,
+        folder,
+        filename,
+        size: obj.Size,
+        lastModified: obj.LastModified,
+        url: `http://${endpoint}:${port}/${this.bucketName}/${obj.Key}`,
+      };
+    });
   }
 
   async deleteFile(key: string) {

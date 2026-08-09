@@ -6,6 +6,7 @@ import { ExperienceModule } from '../experience/experience.module';
 import { SkillsModule } from '../skills/skills.module';
 import { ContactModule } from '../contact/contact.module';
 import { MinioModule } from '../minio/minio.module';
+import { PublicationsModule } from '../publications/publications.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { MinioModule } from '../minio/minio.module';
     SkillsModule,
     ContactModule,
     MinioModule,
+    PublicationsModule,
   ],
   controllers: [PortfolioController],
 })

@@ -10,6 +10,7 @@ import { ContactModule } from './modules/contact/contact.module';
 import { PortfolioModule } from './modules/portfolio/portfolio.module';
 import { MinioModule } from './modules/minio/minio.module';
 import { GithubModule } from './modules/github/github.module';
+import { PublicationsModule } from './modules/publications/publications.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { GithubModule } from './modules/github/github.module';
     ContactModule,
     MinioModule,
     GithubModule,
+    PublicationsModule,
     PortfolioModule,
   ],
 })

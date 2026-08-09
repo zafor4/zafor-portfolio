@@ -17,6 +17,7 @@ const defaultData = {
     showExperience: true,
     showSkills: true,
     showGithub: true,
+    showPublications: true,
     showContact: true,
   },
   projects: [
@@ -135,6 +136,32 @@ const defaultData = {
     { name: 'Java', category: 'Programming', icon: 'FileCode', bg: 'bg-[#5382a1]', color: 'text-white' },
     { name: 'HTML & CSS', category: 'Web Foundation', icon: 'Code2', bg: 'bg-[#e34f26]', color: 'text-white' }
   ],
+  publications: [
+    {
+      id: '1',
+      title: 'User-Centered Design Framework for AI-Driven Cloud Infrastructure Dashboards',
+      publisher: 'IEEE International Conference on Human-Computer Interaction',
+      year: '2025',
+      authors: 'Humayra Arzooman, Tanvir Ahmed, Zariyan Khan',
+      abstract: 'This research paper proposes a unified UI/UX framework optimizing cognitive workload for cloud architecture management, integrating real-time telemetry visualizations with predictive analytics.',
+      doi: '10.1109/HCI.2025.109482',
+      link: 'https://doi.org/10.1109/HCI.2025.109482',
+      pdfUrl: '/documents/research_paper_1.pdf',
+      tags: ['UI/UX Design', 'Cloud Telemetry', 'AI Systems', 'HCI Framework']
+    },
+    {
+      id: '2',
+      title: 'Scalable Micro-Frontends & Design Systems in High-Throughput Fintech Applications',
+      publisher: 'Springer Journal of Systems and Software',
+      year: '2024',
+      authors: 'Humayra Arzooman, Rahman Chowdhury',
+      abstract: 'An empirical investigation into design token synchronization across micro-frontend architectures, reducing UI regression bugs by 45% in production environments.',
+      doi: '10.1007/s10664-024-09823-x',
+      link: 'https://springer.com/journal/article/2024',
+      pdfUrl: '/documents/research_paper_2.pdf',
+      tags: ['Design Systems', 'Micro-Frontends', 'Product Design']
+    }
+  ],
   contact: {
     location: 'DHAKA, BANGLADESH',
     email: 'adinahawaldar895@gmail.com',
@@ -161,6 +188,7 @@ export const PortfolioProvider = ({ children }) => {
           projects: res.projects?.length ? res.projects : defaultData.projects,
           experiences: res.experiences?.length ? res.experiences : defaultData.experiences,
           skills: res.skills?.length ? res.skills : defaultData.skills,
+          publications: res.publications?.length ? res.publications : defaultData.publications,
           contact: res.contact ? { ...defaultData.contact, ...res.contact } : defaultData.contact,
         });
       }

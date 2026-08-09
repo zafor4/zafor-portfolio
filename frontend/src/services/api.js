@@ -79,14 +79,30 @@ export const deleteSkillApi = async (id) => {
   return response.data;
 };
 
+export const createPublicationApi = async (data) => {
+  const response = await api.post('/publications', data);
+  return response.data;
+};
+
+export const updatePublicationApi = async (id, data) => {
+  const response = await api.put(`/publications/${id}`, data);
+  return response.data;
+};
+
+export const deletePublicationApi = async (id) => {
+  const response = await api.delete(`/publications/${id}`);
+  return response.data;
+};
+
 export const updateContactApi = async (contactData) => {
   const response = await api.put('/contact', contactData);
   return response.data;
 };
 
-export const uploadMediaApi = async (file) => {
+export const uploadMediaApi = async (file, folder = 'images') => {
   const formData = new FormData();
   formData.append('file', file);
+  if (folder) formData.append('folder', folder);
   const response = await api.post('/admin/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });

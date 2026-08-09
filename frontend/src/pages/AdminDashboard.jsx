@@ -4,13 +4,14 @@ import { usePortfolio } from '../context/PortfolioContext';
 import { 
   updateProfileApi, createProjectApi, updateProjectApi, deleteProjectApi,
   createExperienceApi, updateExperienceApi, deleteExperienceApi,
-  createSkillApi, updateSkillApi, deleteSkillApi, updateContactApi, 
+  createSkillApi, updateSkillApi, deleteSkillApi, createPublicationApi,
+  updatePublicationApi, deletePublicationApi, updateContactApi, 
   uploadMediaApi, fetchMediaApi, deleteMediaApi 
 } from '../services/api';
 import { 
   User, LayoutGrid, Briefcase, Cpu, PhoneCall, Upload, Plus, Trash2, Edit3, 
   Save, LogOut, CheckCircle, ExternalLink, Shield, Image, Copy, HardDrive, Check,
-  Eye, Sliders, Search, X, Sparkles, Layers, ArrowUpRight, FolderGit2
+  Eye, Sliders, Search, X, Sparkles, Layers, ArrowUpRight, Folder, FolderPlus, FileText, BookOpen
 } from 'lucide-react';
 
 export const AdminDashboard = () => {
@@ -20,9 +21,14 @@ export const AdminDashboard = () => {
   const [statusMsg, setStatusMsg] = useState('');
   const [copiedUrl, setCopiedUrl] = useState('');
 
-  // Media Library State
+  // Media Library & Foldering State
   const [mediaFiles, setMediaFiles] = useState([]);
   const [mediaLoading, setMediaLoading] = useState(false);
+  const [selectedFolder, setSelectedFolder] = useState('all');
+  const [uploadTargetFolder, setUploadTargetFolder] = useState('projects');
+  const [customFolders, setCustomFolders] = useState(['projects', 'profile', 'office', 'documents', 'images']);
+  const [newFolderName, setNewFolderName] = useState('');
+  const [isAddFolderModalOpen, setIsAddFolderModalOpen] = useState(false);
 
   // Form states
   const [profileForm, setProfileForm] = useState(data.profile || {});
@@ -47,6 +53,13 @@ export const AdminDashboard = () => {
   const [editingSkill, setEditingSkill] = useState(null);
   const [skillForm, setSkillForm] = useState({ name: '', category: 'Frontend Framework', icon: 'Code2', bg: 'bg-foreground/10', color: 'text-foreground' });
 
+  // Publication modal
+  const [isPubModalOpen, setIsPubModalOpen] = useState(false);
+  const [editingPub, setEditingPub] = useState(null);
+  const [pubForm, setPubForm] = useState({
+    title: '', publisher: 'IEEE International Conference', year: '2025', authors: 'Humayra Arzooman, et al.', abstract: '', doi: '', pdfUrl: '', link: '', tags: 'UI/UX Design, Cloud Telemetry'
+  });
+
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
     if (!token) {
@@ -64,6 +77,14 @@ export const AdminDashboard = () => {
       setMediaLoading(true);
       const files = await fetchMediaApi();
       setMediaFiles(files || []);
+
+      if (files && files.length > 0) {
+        const extracted = new Set(['projects', 'profile', 'office', 'documents', 'images']);
+        files.forEach(f => {
+          if (f.folder && f.folder !== 'root') extracted.add(f.folder);
+        });
+        setCustomFolders(Array.from(extracted));
+      }
     } catch (err) {
       console.error('Failed to load media library:', err);
     } finally {
@@ -94,17 +115,32 @@ export const AdminDashboard = () => {
     setTimeout(() => setCopiedUrl(''), 2500);
   };
 
-  // Image Upload Handler
-  const handleFileUpload = async (e, callback) => {
+  const handleCreateNewFolder = (e) => {
+    e.preventDefault();
+    if (!newFolderName.trim()) return;
+    const clean = newFolderName.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+    if (clean && !customFolders.includes(clean)) {
+      setCustomFolders([...customFolders, clean]);
+      setUploadTargetFolder(clean);
+      setSelectedFolder(clean);
+      showNotification(`Folder '${clean}' created!`);
+    }
+    setNewFolderName('');
+    setIsAddFolderModalOpen(false);
+  };
+
+  // Image Upload Handler with Folder support
+  const handleFileUpload = async (e, callback, targetFolderOverride) => {
     const file = e.target.files[0];
     if (!file) return;
+    const folderToUse = targetFolderOverride || uploadTargetFolder || 'images';
     try {
-      showNotification('Uploading asset to MinIO storage...');
-      const res = await uploadMediaApi(file);
+      showNotification(`Uploading asset to MinIO [${folderToUse}/]...`);
+      const res = await uploadMediaApi(file, folderToUse);
       const uploadedUrl = res.url || res;
       if (uploadedUrl) {
         if (callback) callback(uploadedUrl);
-        showNotification('File uploaded successfully to MinIO!');
+        showNotification(`File uploaded to '${folderToUse}/' in MinIO!`);
         if (activeTab === 'media') loadMediaLibrary();
       }
     } catch (err) {
@@ -288,6 +324,64 @@ export const AdminDashboard = () => {
     setIsSkillModalOpen(true);
   };
 
+  // Save Publication
+  const handleSavePublication = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        ...pubForm,
+        tags: typeof pubForm.tags === 'string'
+          ? pubForm.tags.split(',').map(t => t.trim())
+          : pubForm.tags
+      };
+      if (editingPub) {
+        await updatePublicationApi(editingPub.id, payload);
+        showNotification('Publication updated!');
+      } else {
+        await createPublicationApi(payload);
+        showNotification('Publication research paper added!');
+      }
+      setIsPubModalOpen(false);
+      setEditingPub(null);
+      setPubForm({ title: '', publisher: 'IEEE International Conference', year: '2025', authors: 'Humayra Arzooman, et al.', abstract: '', doi: '', pdfUrl: '', link: '', tags: 'UI/UX Design, Cloud Telemetry' });
+      await refreshData();
+    } catch (err) {
+      showNotification('Publication save failed: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleDeletePublication = async (id) => {
+    if (!window.confirm('Delete this publication entry?')) return;
+    try {
+      await deletePublicationApi(id);
+      await refreshData();
+      showNotification('Publication removed.');
+    } catch (err) {
+      showNotification('Delete failed: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const openPubModal = (pub = null) => {
+    if (pub) {
+      setEditingPub(pub);
+      setPubForm({
+        title: pub.title || '',
+        publisher: pub.publisher || '',
+        year: pub.year || '2025',
+        authors: pub.authors || '',
+        abstract: pub.abstract || '',
+        doi: pub.doi || '',
+        pdfUrl: pub.pdfUrl || '',
+        link: pub.link || '',
+        tags: Array.isArray(pub.tags) ? pub.tags.join(', ') : pub.tags || ''
+      });
+    } else {
+      setEditingPub(null);
+      setPubForm({ title: '', publisher: 'IEEE International Conference', year: '2025', authors: 'Humayra Arzooman, et al.', abstract: '', doi: '', pdfUrl: '', link: '', tags: 'UI/UX Design, Cloud Telemetry' });
+    }
+    setIsPubModalOpen(true);
+  };
+
   // Navigation Items
   const navItems = [
     { id: 'overview', label: 'Overview & Controls', icon: Sliders, badge: 'Main' },
@@ -295,8 +389,9 @@ export const AdminDashboard = () => {
     { id: 'projects', label: 'Projects Portfolio', icon: LayoutGrid, count: data.projects?.length || 0 },
     { id: 'experience', label: 'Work Experience', icon: Briefcase, count: data.experiences?.length || 0 },
     { id: 'skills', label: 'Skills & Stack', icon: Cpu, count: data.skills?.length || 0 },
+    { id: 'publications', label: 'Publications & Research', icon: BookOpen, count: data.publications?.length || 0 },
     { id: 'contact', label: 'Contact & Socials', icon: PhoneCall },
-    { id: 'media', label: 'Media Repository', icon: Image, badge: 'S3' },
+    { id: 'media', label: 'Media Repository', icon: Image, badge: 'Folders' },
   ];
 
   // Filtered projects
@@ -305,6 +400,12 @@ export const AdminDashboard = () => {
                           p.description?.toLowerCase().includes(projectSearch.toLowerCase());
     const matchesType = projectFilterType === 'all' || p.type === projectFilterType;
     return matchesSearch && matchesType;
+  });
+
+  // Filtered media files by selected folder
+  const filteredMediaFiles = mediaFiles.filter(f => {
+    if (selectedFolder === 'all') return true;
+    return f.folder === selectedFolder || (selectedFolder === 'root' && (!f.folder || f.folder === 'root'));
   });
 
   return (
@@ -436,11 +537,11 @@ export const AdminDashboard = () => {
 
               <div className="bg-card border border-border p-5 rounded-2xl flex items-center justify-between">
                 <div>
-                  <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Skill Badges</span>
-                  <h3 className="text-2xl font-black text-foreground mt-1">{data.skills?.length || 0}</h3>
+                  <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Publications</span>
+                  <h3 className="text-2xl font-black text-foreground mt-1">{data.publications?.length || 0}</h3>
                 </div>
-                <div className="w-11 h-11 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
-                  <Cpu size={22} />
+                <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+                  <BookOpen size={22} />
                 </div>
               </div>
 
@@ -449,7 +550,7 @@ export const AdminDashboard = () => {
                   <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">MinIO Storage</span>
                   <h3 className="text-2xl font-black text-foreground mt-1">Active</h3>
                 </div>
-                <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+                <div className="w-11 h-11 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
                   <HardDrive size={22} />
                 </div>
               </div>
@@ -481,6 +582,7 @@ export const AdminDashboard = () => {
                   { key: 'showExperience', label: 'Work Experience', desc: 'Career timeline & leadership history' },
                   { key: 'showSkills', label: 'Skills & Stack Matrix', desc: 'Categorized technical capabilities & tools' },
                   { key: 'showGithub', label: 'GitHub Activity', desc: 'Live contribution heatmap & commit counters' },
+                  { key: 'showPublications', label: 'Publications & Research', desc: 'Academic research papers, journals & DOI links' },
                   { key: 'showContact', label: 'Contact & Footer', desc: 'Office image, inquiry form & social links' },
                 ].map((sec) => (
                   <label 
@@ -705,7 +807,7 @@ export const AdminDashboard = () => {
               ))}
             </div>
 
-            {/* Project Modal / Drawer */}
+            {/* Project Modal */}
             {isProjectModalOpen && (
               <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
                 <div className="bg-card border border-border w-full max-w-2xl rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl max-h-[90vh] overflow-y-auto">
@@ -757,11 +859,11 @@ export const AdminDashboard = () => {
                         />
                         <label className="px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-bold hover:bg-muted/80 cursor-pointer flex items-center gap-1.5">
                           <Upload size={14} />
-                          <span>Upload</span>
+                          <span>Upload (projects/)</span>
                           <input
                             type="file"
                             accept="image/*"
-                            onChange={e => handleFileUpload(e, url => setProjectForm({ ...projectForm, image: url }))}
+                            onChange={e => handleFileUpload(e, url => setProjectForm({ ...projectForm, image: url }), 'projects')}
                             className="hidden"
                           />
                         </label>
@@ -1075,7 +1177,200 @@ export const AdminDashboard = () => {
           </div>
         )}
 
-        {/* TAB 6: CONTACT & SOCIAL LINKS */}
+        {/* TAB 6: PUBLICATIONS & RESEARCH */}
+        {activeTab === 'publications' && (
+          <div className="space-y-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-extrabold text-foreground">Publications & Research</h1>
+                <p className="text-xs text-muted-foreground mt-1">Manage academic research papers, conference articles, and DOI links.</p>
+              </div>
+              <button
+                onClick={() => openPubModal()}
+                className="px-5 py-3 bg-foreground text-background font-bold text-xs rounded-xl hover:opacity-90 transition-opacity flex items-center gap-2 cursor-pointer shadow-md"
+              >
+                <Plus size={16} />
+                <span>Add Publication</span>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {(data.publications || []).map((pub) => (
+                <div key={pub.id} className="bg-card border border-border p-6 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                  <div className="space-y-1.5 max-w-3xl">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                        {pub.publisher}
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                        {pub.year}
+                      </span>
+                    </div>
+                    <h3 className="text-base font-bold text-foreground leading-snug">{pub.title}</h3>
+                    <p className="text-xs font-semibold text-foreground/70">Authors: {pub.authors}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{pub.abstract}</p>
+                  </div>
+
+                  <div className="flex items-center gap-2 self-end md:self-auto shrink-0">
+                    <button
+                      onClick={() => openPubModal(pub)}
+                      className="p-2 text-foreground/80 hover:text-foreground hover:bg-muted rounded-xl transition-colors cursor-pointer"
+                      title="Edit Publication"
+                    >
+                      <Edit3 size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDeletePublication(pub.id)}
+                      className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-colors cursor-pointer"
+                      title="Delete Publication"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Publication Modal */}
+            {isPubModalOpen && (
+              <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+                <div className="bg-card border border-border w-full max-w-2xl rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+                  <div className="flex items-center justify-between border-b border-border pb-4">
+                    <h3 className="text-lg font-bold text-foreground">
+                      {editingPub ? 'Edit Publication Details' : 'Add Research Publication'}
+                    </h3>
+                    <button onClick={() => setIsPubModalOpen(false)} className="p-2 text-muted-foreground hover:text-foreground">
+                      <X size={18} />
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleSavePublication} className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-foreground/80 mb-1.5">Paper / Article Title</label>
+                      <input
+                        type="text"
+                        required
+                        value={pubForm.title}
+                        onChange={e => setPubForm({ ...pubForm, title: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-foreground/80 mb-1.5">Publisher / Conference Venue</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. IEEE / Springer / ACM"
+                          value={pubForm.publisher}
+                          onChange={e => setPubForm({ ...pubForm, publisher: e.target.value })}
+                          className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-foreground/80 mb-1.5">Publication Year</label>
+                        <input
+                          type="text"
+                          required
+                          value={pubForm.year}
+                          onChange={e => setPubForm({ ...pubForm, year: e.target.value })}
+                          className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-foreground/80 mb-1.5">Authors List</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Humayra Arzooman, et al."
+                        value={pubForm.authors}
+                        onChange={e => setPubForm({ ...pubForm, authors: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-foreground/80 mb-1.5">Abstract Summary</label>
+                      <textarea
+                        rows={3}
+                        required
+                        value={pubForm.abstract}
+                        onChange={e => setPubForm({ ...pubForm, abstract: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-foreground/80 mb-1.5">DOI Link / URL</label>
+                        <input
+                          type="text"
+                          value={pubForm.link}
+                          onChange={e => setPubForm({ ...pubForm, link: e.target.value })}
+                          className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-foreground/80 mb-1.5">PDF Paper URL</label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={pubForm.pdfUrl}
+                            onChange={e => setPubForm({ ...pubForm, pdfUrl: e.target.value })}
+                            className="flex-1 px-3 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                          />
+                          <label className="px-3 py-2.5 bg-muted border border-border rounded-xl text-xs font-bold hover:bg-muted/80 cursor-pointer flex items-center gap-1">
+                            <Upload size={13} />
+                            <span>Upload</span>
+                            <input
+                              type="file"
+                              accept=".pdf,application/pdf"
+                              onChange={e => handleFileUpload(e, url => setPubForm({ ...pubForm, pdfUrl: url }), 'documents')}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-foreground/80 mb-1.5">Research Topic Tags (comma separated)</label>
+                      <input
+                        type="text"
+                        value={pubForm.tags}
+                        onChange={e => setPubForm({ ...pubForm, tags: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
+                      <button
+                        type="button"
+                        onClick={() => setIsPubModalOpen(false)}
+                        className="px-5 py-2.5 bg-muted rounded-xl text-xs font-bold cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-6 py-2.5 bg-foreground text-background font-bold text-xs rounded-xl hover:opacity-90 cursor-pointer"
+                      >
+                        Save Publication
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 7: CONTACT & SOCIAL LINKS */}
         {activeTab === 'contact' && (
           <div className="space-y-8">
             <div>
@@ -1157,11 +1452,11 @@ export const AdminDashboard = () => {
                   />
                   <label className="px-5 py-3 bg-muted border border-border rounded-xl text-xs font-bold hover:bg-muted/80 cursor-pointer flex items-center gap-2 shrink-0">
                     <Upload size={15} />
-                    <span>Upload to MinIO</span>
+                    <span>Upload (office/)</span>
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={e => handleFileUpload(e, url => setContactForm({ ...contactForm, officeImageUrl: url }))}
+                      onChange={e => handleFileUpload(e, url => setContactForm({ ...contactForm, officeImageUrl: url }), 'office')}
                       className="hidden"
                     />
                   </label>
@@ -1181,77 +1476,177 @@ export const AdminDashboard = () => {
           </div>
         )}
 
-        {/* TAB 7: MEDIA REPOSITORY */}
+        {/* TAB 8: MEDIA REPOSITORY & FOLDERS */}
         {activeTab === 'media' && (
           <div className="space-y-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <h1 className="text-2xl font-extrabold text-foreground flex items-center gap-2.5">
                   <HardDrive size={24} className="text-emerald-500" />
-                  <span>MinIO Media Repository</span>
+                  <span>MinIO Foldered Media Repository</span>
                 </h1>
-                <p className="text-xs text-muted-foreground mt-1">Manage files, images, and static assets in S3 object storage.</p>
+                <p className="text-xs text-muted-foreground mt-1">Organize files into folder directories in MinIO S3 object storage.</p>
               </div>
 
-              <a
-                href="http://localhost:9001"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2.5 bg-muted border border-border hover:bg-muted/80 rounded-xl text-xs font-bold text-foreground flex items-center gap-2 transition-colors"
-              >
-                <ExternalLink size={14} />
-                <span>MinIO Console</span>
-              </a>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setIsAddFolderModalOpen(true)}
+                  className="px-4 py-2.5 bg-foreground text-background rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm cursor-pointer"
+                >
+                  <FolderPlus size={15} />
+                  <span>New Folder</span>
+                </button>
+
+                <a
+                  href="http://localhost:9001"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2.5 bg-muted border border-border hover:bg-muted/80 rounded-xl text-xs font-bold text-foreground flex items-center gap-2 transition-colors"
+                >
+                  <ExternalLink size={14} />
+                  <span>MinIO Console</span>
+                </a>
+              </div>
             </div>
 
-            {/* Drag & Drop Upload Zone */}
-            <div className="bg-card border-2 border-dashed border-border rounded-3xl p-8 text-center space-y-4">
-              <div className="w-14 h-14 rounded-2xl bg-foreground/10 flex items-center justify-center mx-auto text-foreground">
-                <Upload size={24} />
+            {/* Folder Directories Cards */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-foreground/80 flex items-center gap-2">
+                  <Folder size={15} className="text-amber-500" />
+                  <span>Media Folders</span>
+                </h3>
+                <span className="text-xs text-muted-foreground">Select a folder to filter files</span>
               </div>
-              <div>
-                <h3 className="text-sm font-bold text-foreground">Upload Files to MinIO Storage</h3>
-                <p className="text-xs text-muted-foreground mt-1">Direct S3 bucket sync for portfolio assets.</p>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                <button
+                  onClick={() => setSelectedFolder('all')}
+                  className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
+                    selectedFolder === 'all' 
+                      ? 'bg-foreground text-background font-bold border-foreground shadow-sm' 
+                      : 'bg-card border-border hover:border-foreground/40'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <Folder size={18} className={selectedFolder === 'all' ? 'text-background' : 'text-amber-500'} />
+                    <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-md ${
+                      selectedFolder === 'all' ? 'bg-background/20 text-background' : 'bg-muted text-muted-foreground'
+                    }`}>
+                      {mediaFiles.length}
+                    </span>
+                  </div>
+                  <span className="text-xs font-bold block mt-2.5">All Files</span>
+                </button>
+
+                {customFolders.map((fName) => {
+                  const folderCount = mediaFiles.filter(f => f.folder === fName).length;
+                  const isSelected = selectedFolder === fName;
+                  return (
+                    <button
+                      key={fName}
+                      onClick={() => setSelectedFolder(fName)}
+                      className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
+                        isSelected 
+                          ? 'bg-foreground text-background font-bold border-foreground shadow-sm' 
+                          : 'bg-card border-border hover:border-foreground/40'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <Folder size={18} className={isSelected ? 'text-background' : 'text-amber-500'} />
+                        <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-md ${
+                          isSelected ? 'bg-background/20 text-background' : 'bg-muted text-muted-foreground'
+                        }`}>
+                          {folderCount}
+                        </span>
+                      </div>
+                      <span className="text-xs font-bold block mt-2.5 truncate" title={fName}>{fName}/</span>
+                    </button>
+                  );
+                })}
               </div>
-              <label className="inline-flex items-center gap-2 px-6 py-3 bg-foreground text-background font-bold text-xs rounded-xl hover:opacity-90 cursor-pointer shadow-md">
-                <span>Select File from Computer</span>
-                <input
-                  type="file"
-                  onChange={e => handleFileUpload(e)}
-                  className="hidden"
-                />
-              </label>
             </div>
 
-            {/* Media Gallery */}
+            {/* Folder-Targeted Upload Zone */}
+            <div className="bg-card border-2 border-dashed border-border rounded-3xl p-6 md:p-8 space-y-4">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-foreground/10 flex items-center justify-center text-foreground shrink-0">
+                    <Upload size={22} />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="text-sm font-bold text-foreground">Upload Asset to MinIO Folder</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">Files will be saved into the selected folder directory.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-foreground/80 whitespace-nowrap">Target Folder:</span>
+                    <select
+                      value={uploadTargetFolder}
+                      onChange={e => setUploadTargetFolder(e.target.value)}
+                      className="px-3 py-2 bg-muted border border-border rounded-xl text-xs font-bold focus:outline-none"
+                    >
+                      {customFolders.map(f => (
+                        <option key={f} value={f}>{f}/</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <label className="px-5 py-2.5 bg-foreground text-background font-bold text-xs rounded-xl hover:opacity-90 cursor-pointer shadow-md whitespace-nowrap">
+                    <span>Upload File</span>
+                    <input
+                      type="file"
+                      onChange={e => handleFileUpload(e)}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Media Asset Grid */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-foreground">Uploaded Assets ({mediaFiles.length})</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-bold text-foreground">
+                    {selectedFolder === 'all' ? 'All Uploaded Assets' : `Folder: ${selectedFolder}/`}
+                  </h3>
+                  <span className="text-xs text-muted-foreground">({filteredMediaFiles.length} items)</span>
+                </div>
                 <button
                   onClick={loadMediaLibrary}
                   className="text-xs text-muted-foreground hover:text-foreground font-semibold"
                 >
-                  Refresh list
+                  Refresh bucket list
                 </button>
               </div>
 
               {mediaLoading ? (
-                <p className="text-xs text-muted-foreground py-8 text-center">Loading MinIO bucket objects...</p>
-              ) : mediaFiles.length === 0 ? (
-                <div className="bg-card border border-border p-8 rounded-2xl text-center text-xs text-muted-foreground">
-                  No uploaded files found in MinIO bucket.
+                <p className="text-xs text-muted-foreground py-8 text-center">Loading MinIO folder objects...</p>
+              ) : filteredMediaFiles.length === 0 ? (
+                <div className="bg-card border border-border p-12 rounded-2xl text-center space-y-2">
+                  <Folder size={32} className="text-muted-foreground mx-auto opacity-50" />
+                  <p className="text-xs text-muted-foreground">No files in {selectedFolder === 'all' ? 'MinIO bucket' : `'${selectedFolder}/' folder`}.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {mediaFiles.map((file) => (
+                  {filteredMediaFiles.map((file) => (
                     <div key={file.key} className="bg-card border border-border rounded-2xl overflow-hidden p-3 flex flex-col justify-between space-y-3 group hover:border-foreground/40 transition-colors">
-                      <div className="aspect-square bg-muted rounded-xl overflow-hidden relative">
-                        <img src={file.url} alt={file.key} className="w-full h-full object-cover" />
-                      </div>
                       <div>
-                        <span className="text-[11px] font-bold text-foreground block truncate" title={file.key}>{file.key}</span>
-                        <span className="text-[10px] text-muted-foreground block">{(file.size / 1024).toFixed(1)} KB</span>
+                        <div className="aspect-square bg-muted rounded-xl overflow-hidden relative">
+                          <img src={file.url} alt={file.key} className="w-full h-full object-cover" />
+                          <span className="absolute top-2 left-2 px-2 py-0.5 bg-background/90 backdrop-blur-md rounded-md text-[9px] font-bold text-foreground uppercase tracking-wider">
+                            {file.folder}/
+                          </span>
+                        </div>
+                        <div className="pt-2.5">
+                          <span className="text-[11px] font-bold text-foreground block truncate" title={file.key}>{file.filename || file.key}</span>
+                          <span className="text-[10px] text-muted-foreground block font-medium">{(file.size / 1024).toFixed(1)} KB</span>
+                        </div>
                       </div>
+
                       <div className="flex items-center gap-2 pt-2 border-t border-border">
                         <button
                           onClick={() => handleCopyUrl(file.url)}
@@ -1273,6 +1668,54 @@ export const AdminDashboard = () => {
                 </div>
               )}
             </div>
+
+            {/* Create Folder Modal */}
+            {isAddFolderModalOpen && (
+              <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+                <div className="bg-card border border-border w-full max-w-md rounded-3xl p-6 space-y-6 shadow-2xl">
+                  <div className="flex items-center justify-between border-b border-border pb-4">
+                    <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                      <FolderPlus size={18} className="text-amber-500" />
+                      <span>Create New MinIO Folder</span>
+                    </h3>
+                    <button onClick={() => setIsAddFolderModalOpen(false)} className="p-2 text-muted-foreground hover:text-foreground">
+                      <X size={18} />
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleCreateNewFolder} className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-foreground/80 mb-1.5">Folder Directory Name</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. banners, certificates, case-studies"
+                        value={newFolderName}
+                        onChange={e => setNewFolderName(e.target.value)}
+                        className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                      />
+                      <span className="text-[10px] text-muted-foreground block mt-1">Special characters will be sanitized into lower-case alphanumeric directory name.</span>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
+                      <button
+                        type="button"
+                        onClick={() => setIsAddFolderModalOpen(false)}
+                        className="px-5 py-2 bg-muted rounded-xl text-xs font-bold cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-6 py-2 bg-foreground text-background font-bold text-xs rounded-xl hover:opacity-90 cursor-pointer"
+                      >
+                        Create Folder
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

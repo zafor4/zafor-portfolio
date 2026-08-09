@@ -30,6 +30,7 @@ export const Navbar = () => {
     { name: 'Projects', href: '#projects', visible: profile.showProjects !== false },
     { name: 'Experience', href: '#experience', visible: profile.showExperience !== false },
     { name: 'Skills', href: '#skills', visible: profile.showSkills !== false },
+    { name: 'Publications', href: '#publications', visible: profile.showPublications !== false },
     { name: 'Contact', href: '#contact', visible: profile.showContact !== false },
   ];
 

@@ -8,6 +8,7 @@ import { Projects } from './components/Projects';
 import { Experience } from './components/Experience';
 import { Skills } from './components/Skills';
 import { GitHubStats } from './components/GitHubStats';
+import { Publications } from './components/Publications';
 import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
 import { AdminLogin } from './pages/AdminLogin';
@@ -26,6 +27,7 @@ function LivePortfolioContent() {
         {profile.showExperience !== false && <Experience />}
         {profile.showSkills !== false && <Skills />}
         {profile.showGithub !== false && <GitHubStats />}
+        {profile.showPublications !== false && <Publications />}
         {profile.showContact !== false && <Contact />}
       </main>
       <Footer />
