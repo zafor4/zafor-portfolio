@@ -7,19 +7,24 @@ export class ContactService implements OnModuleInit {
 
   async onModuleInit() {
     const contact = await this.prisma.contact.findFirst();
-    if (!contact) {
-      await this.prisma.contact.create({
-        data: {
-          location: 'DHAKA, BANGLADESH',
-          email: 'xoy4444@gmail.com',
-          linkedin: 'https://linkedin.com/in/zaforiqbalxoy',
-          github: 'https://github.com/zafor4',
-          figma: 'https://figma.com/@zaforiqbal',
-          twitter: 'https://twitter.com/@zaforiqbal',
-          githubUsername: 'zafor4',
-          officeImageUrl: '/assets/professional_office.png',
-        },
+    const data = {
+      location: 'DHAKA, BANGLADESH',
+      email: 'xoy4444@gmail.com',
+      linkedin: 'https://linkedin.com/in/zaforiqbalxoy',
+      github: 'https://github.com/zafor4',
+      figma: 'https://figma.com/@zaforiqbal',
+      twitter: 'https://twitter.com/@zaforiqbal',
+      githubUsername: 'zafor4',
+      officeImageUrl: '/assets/professional_office.png',
+    };
+
+    if (contact) {
+      await this.prisma.contact.update({
+        where: { id: contact.id },
+        data,
       });
+    } else {
+      await this.prisma.contact.create({ data });
     }
   }
 
