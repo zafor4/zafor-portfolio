@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY package*.json ./
 COPY prisma ./prisma/
-RUN npm install
+RUN npm config set fetch-retry-maxtimeout 120000 && npm config set fetch-retries 5 && npm install
 RUN npx prisma generate
 
 COPY . .
@@ -16,11 +16,11 @@ WORKDIR /app
 
 COPY package*.json ./
 COPY prisma ./prisma/
-RUN npm install --omit=dev
+RUN npm config set fetch-retry-maxtimeout 120000 && npm config set fetch-retries 5 && npm install --omit=dev
 RUN npx prisma generate
 
 COPY --from=builder /app/dist ./dist
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx prisma db push --force-reset && node dist/main"]
+CMD ["sh", "-c", "npx prisma db push && node dist/main"]
