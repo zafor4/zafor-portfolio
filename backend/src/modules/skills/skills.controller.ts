@@ -1,6 +1,5 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
 import { SkillsService } from './skills.service';
-import { Skill } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('skills')
@@ -8,25 +7,25 @@ export class SkillsController {
   constructor(private readonly skillsService: SkillsService) {}
 
   @Get()
-  findAll(): Promise<Skill[]> {
+  async findAll() {
     return this.skillsService.findAll();
   }
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() body: Partial<Skill>): Promise<Skill> {
+  async create(@Body() body: any) {
     return this.skillsService.create(body);
   }
 
   @UseGuards(JwtAuthGuard)
   @Put(':id')
-  update(@Param('id') id: string, @Body() body: Partial<Skill>): Promise<Skill> {
+  async update(@Param('id') id: string, @Body() body: any) {
     return this.skillsService.update(id, body);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<void> {
+  async remove(@Param('id') id: string) {
     return this.skillsService.remove(id);
   }
 }

@@ -5,10 +5,10 @@ const PortfolioContext = createContext();
 
 const defaultData = {
   profile: {
-    name: 'Humayra Arzooman',
-    title: 'UI/UX Designer & Product Designer',
+    name: 'MD ZAFOR IQBAL',
+    title: 'Software Engineer & Programming Instructor',
     location: 'Dhaka, Bangladesh',
-    statement: '[A product-focused Designer & Founder from Bangladesh, building high-performance digital experiences where modern design meets scalable technology, cloud innovation, and intelligent solutions.]',
+    statement: '[Computer Science and Engineering graduate (CGPA 3.80/4.00) and M.Sc. candidate with professional software engineering experience, published research in Deep Learning & AI, and hands-on teaching experience in React.js and modern Web Development.]',
     availableForWork: true,
     resumeUrl: '/resume.pdf',
     avatarUrl: '/assets/adina.jpeg',
@@ -18,158 +18,162 @@ const defaultData = {
     showSkills: true,
     showGithub: true,
     showPublications: true,
+    showActivities: true,
     showContact: true,
   },
   projects: [
     {
       id: '1',
-      title: 'Snippit',
+      title: 'Tech Meet',
       type: 'website',
       image: '/assets/snippit.png',
-      description: 'An open-source SaaS starter registry',
-      technologies: ['React', 'Tailwind'],
-      github: 'https://github.com/adinahawaldar/snippit',
-      live: 'https://snippit-dev.vercel.app/'
+      description: 'Automated recruitment platform using the M-Smart hybrid AI matching model for candidate profiling, ranking, and shortlisting.',
+      technologies: ['Next.js', 'Express.js', 'FastAPI', 'Python', 'AI'],
+      github: 'https://github.com/zafor4/tech-meet',
+      live: 'https://portfolio-client-five-ebon.vercel.app'
     },
     {
       id: '2',
-      title: 'Zentra',
+      title: 'Bhubanmajhi',
       type: 'website',
       image: '/assets/zentra.png',
-      description: 'Decentralized Civic Infrastructure Management Platform',
-      technologies: ['React', 'Tailwind'],
-      github: 'https://github.com/adinahawaldar/zentra',
-      live: 'https://zentra-ten.vercel.app/'
+      description: 'Full-stack travel booking platform covering tour, hotel, flight, and reservation workflows; integrated SSLCommerz payment and booking management.',
+      technologies: ['Next.js', 'TypeScript', 'Node.js', 'MongoDB', 'SSLCommerz'],
+      github: 'https://github.com/zafor4/bhubanmajhi',
+      live: ''
     },
     {
       id: '3',
-      title: 'Autovion',
-      type: 'ui/ux',
+      title: 'Surveillance & Mapping System',
+      type: 'website',
       image: '/assets/autovion.png',
-      description: 'Luxury car showroom UI focused on clarity.',
-      technologies: ['Figma', 'Branding'],
-      figma: 'https://www.figma.com/design/xX2KTf91gwtdpHaCBSghlz/Autovion?t=oSsae7DAQE5zYa9h-1'
+      description: 'Real-time surveillance and mapping system supporting live tracking, ride-sharing, and delivery workflows.',
+      technologies: ['React Native', 'React.js', 'Node.js', 'WebSockets', 'MapLibre'],
+      github: 'https://github.com/zafor4/surveillance-system',
+      live: ''
     },
     {
       id: '4',
-      title: 'Zen',
-      type: 'ui/ux',
-      image: '/assets/zen.png',
-      description: 'Architecture website design.',
-      technologies: ['Figma', 'Prototype'],
-      figma: 'https://www.figma.com/design/rMF571Vdq8kAHGTv5srtCp/Untitled?node-id=0-1&t=wTuhogRbZhysb8NY-1'
-    },
-    {
-      id: '5',
-      title: 'Smartchain',
+      title: 'eFamily Court Judiciary Platform',
       type: 'website',
       image: '/assets/smartchain.png',
-      description: 'AI Supply chain control tower',
-      technologies: ['React', 'ML'],
-      github: 'https://github.com/adinahawaldar/Smart-chain',
-      live: 'https://smart-chain-ossk.vercel.app/'
-    },
-    {
-      id: '6',
-      title: 'Artwork',
-      type: 'ui/ux',
-      image: '/assets/artwork.png',
-      description: 'Artwork Gallery Design.',
-      technologies: ['Figma', 'UI'],
-      figma: 'https://www.figma.com/design/xe3V32YLb8xSC1xzgDoxOi/Untitled?node-id=0-1&t=cwGM42qXVpOQ5UpF-1'
-    },
-    {
-      id: '7',
-      title: 'Law Firm',
-      type: 'ui/ux',
-      image: '/assets/lawfirm.png',
-      description: 'Law Firm Website Design.',
-      technologies: ['Figma', 'UI'],
-      figma: 'https://www.figma.com/design/jCyOYI6jSujE0s6aJwg8ca/Untitled?node-id=0-1&t=CuNiBHd9S4i07Pgz-1'
-    },
-    {
-      id: '8',
-      title: 'Restaurant',
-      type: 'ui/ux',
-      image: '/assets/restaurant.png',
-      description: 'Restaurant Website UI.',
-      technologies: ['Figma', 'UI'],
-      figma: 'https://www.figma.com/design/XOE9NAdIeFFysXMO1A3grl/Rumman-%E2%80%94-Modern-Food-Restaurant-Website-UI-Design--Community-?node-id=0-1&t=6fFiP9DJLS83e11K-1'
+      description: 'Digital paperless judiciary platform developed at CSE Tech for judicial user interface workflows and API integration.',
+      technologies: ['Next.js', 'React.js', 'NestJS', 'Prisma', 'PostgreSQL'],
+      github: '',
+      live: ''
     }
   ],
   experiences: [
     {
       id: '1',
-      company: 'IDEM Studio',
-      role: 'Founder & CEO',
-      duration: '2026 - current',
-      desc: 'Founder of Idem Studio, creating modern digital experiences through design, development, AI, and automation from concept to high-performance products.'
+      company: 'CSE Tech',
+      role: 'Software Engineer (Frontend)',
+      duration: '01/2026 – Present',
+      desc: 'Develop enterprise web applications using Next.js, React.js, NestJS, and PostgreSQL. Rebuilt company portfolio and digital paperless judiciary platform eFamily Court. Guide junior developers and interns.'
     },
     {
       id: '2',
-      company: 'HEProAI',
-      role: 'Cloud Engineer',
-      duration: 'Nov 2025 - Jan 2026',
-      desc: 'Architected scalable AWS environments and automated security protocols for high-availability applications.'
+      company: 'Fawz Biz Enterprises',
+      role: 'Full Stack Developer & Database Specialist',
+      duration: '02/2026 – Present',
+      desc: 'Design relational & non-relational database structures, SQL queries, Prisma ORM integrations, and RESTful APIs for enterprise software projects.'
     },
     {
       id: '3',
-      company: 'Pinnacle Infotech',
-      role: 'Cloud Engineer',
-      duration: 'June 2024 - Aug 2024',
-      desc: 'Deployed enterprise infrastructure using CloudFormation and boosted deployment velocity by 50%.'
+      company: 'SharpBD IT Solution',
+      role: 'Frontend Developer',
+      duration: '04/2025 – 09/2025',
+      desc: 'Developed real-time surveillance & mapping system using WebSockets & MapLibre, and full-stack travel booking platform.'
+    },
+    {
+      id: '4',
+      company: 'SharpBD IT Solution',
+      role: 'React.js Developer (Intern)',
+      duration: '01/2025 – 04/2025',
+      desc: 'Integrated RESTful APIs using Axios and built responsive user interfaces using Bootstrap and CSS.'
     }
   ],
   skills: [
-    { name: 'React', category: 'Frontend Framework', icon: 'Code2', bg: 'bg-[#61dafb]', color: 'text-black' },
-    { name: 'Node.js', category: 'Backend Engineering', icon: 'Server', bg: 'bg-[#339933]', color: 'text-white' },
+    { name: 'C++', category: 'Programming & CS', icon: 'Code2', bg: 'bg-[#00599C]', color: 'text-white' },
+    { name: 'Python', category: 'Programming & AI', icon: 'Terminal', bg: 'bg-[#3776ab]', color: 'text-white' },
+    { name: 'JavaScript & TS', category: 'Programming & Web', icon: 'Code2', bg: 'bg-[#f7df1e]', color: 'text-black' },
+    { name: 'React.js & Next.js', category: 'Frontend Engineering', icon: 'Layout', bg: 'bg-[#61dafb]', color: 'text-black' },
+    { name: 'NestJS & Node.js', category: 'Backend Engineering', icon: 'Server', bg: 'bg-[#E0234E]', color: 'text-white' },
+    { name: 'PostgreSQL & MySQL', category: 'Database Systems', icon: 'Database', bg: 'bg-[#4169E1]', color: 'text-white' },
+    { name: 'MongoDB', category: 'NoSQL Databases', icon: 'Database', bg: 'bg-[#47a248]', color: 'text-white' },
+    { name: 'Prisma ORM', category: 'Database ORM', icon: 'Layers', bg: 'bg-[#2D3748]', color: 'text-white' },
+    { name: 'Machine Learning & Deep Learning', category: 'AI & Research', icon: 'Cpu', bg: 'bg-[#ff007f]', color: 'text-white' },
+    { name: 'Data Structures & Algorithms', category: 'CS Fundamentals', icon: 'Cpu', bg: 'bg-foreground', color: 'text-background' },
+    { name: 'Docker & Git', category: 'Tools & DevOps', icon: 'GitBranch', bg: 'bg-[#2496ED]', color: 'text-white' },
     { name: 'Tailwind CSS', category: 'Styling Framework', icon: 'Layout', bg: 'bg-[#38bdf8]', color: 'text-white' },
-    { name: 'Figma', category: 'UI/UX Design', icon: 'Palette', bg: 'bg-zinc-900 dark:bg-zinc-100', color: 'text-white dark:text-black' },
-    { name: 'Product Design', category: 'Strategy & UX', icon: 'Layers', bg: 'bg-foreground', color: 'text-background' },
-    { name: 'Graphics Design', category: 'Visual Identity', icon: 'Cpu', bg: 'bg-[#ff007f]', color: 'text-white' },
-    { name: 'AWS', category: 'Cloud Infrastructure', icon: 'Cloud', bg: 'bg-[#232F3E]', color: 'text-white' },
-    { name: 'Firebase', category: 'Backend Services', icon: 'Database', bg: 'bg-[#ffca28]', color: 'text-black' },
-    { name: 'Python', category: 'Backend / Scripting', icon: 'Terminal', bg: 'bg-[#3776ab]', color: 'text-white' },
-    { name: 'MongoDB', category: 'Database', icon: 'Database', bg: 'bg-[#47a248]', color: 'text-white' },
-    { name: 'Git & GitHub', category: 'Version Control', icon: 'GitBranch', bg: 'bg-[#181717]', color: 'text-white' },
-    { name: 'Canva', category: 'Design Software', icon: 'Palette', bg: 'bg-[#00c4cc]', color: 'text-white' },
-    { name: 'Java', category: 'Programming', icon: 'FileCode', bg: 'bg-[#5382a1]', color: 'text-white' },
-    { name: 'HTML & CSS', category: 'Web Foundation', icon: 'Code2', bg: 'bg-[#e34f26]', color: 'text-white' }
+    { name: 'WebSockets & MapLibre', category: 'Real-time & Maps', icon: 'Cloud', bg: 'bg-[#ff9900]', color: 'text-black' }
   ],
   publications: [
     {
       id: '1',
-      title: 'User-Centered Design Framework for AI-Driven Cloud Infrastructure Dashboards',
-      publisher: 'IEEE International Conference on Human-Computer Interaction',
-      year: '2025',
-      authors: 'Humayra Arzooman, Tanvir Ahmed, Zariyan Khan',
-      abstract: 'This research paper proposes a unified UI/UX framework optimizing cognitive workload for cloud architecture management, integrating real-time telemetry visualizations with predictive analytics.',
-      doi: '10.1109/HCI.2025.109482',
-      link: 'https://doi.org/10.1109/HCI.2025.109482',
-      pdfUrl: '/documents/research_paper_1.pdf',
-      tags: ['UI/UX Design', 'Cloud Telemetry', 'AI Systems', 'HCI Framework']
+      title: 'Enhanced Agricultural Productivity: Dragon Fruit Leaf Disease Detection Using Deep Learning Models',
+      publisher: 'International Conference on Intelligent Data Analysis and Applications (IDAA 2025)',
+      year: 'Dec 2025',
+      authors: 'MD ZAFOR IQBAL, et al.',
+      abstract: 'Published research proposing an automated deep learning framework for accurate identification and classification of dragon fruit leaf diseases to increase agricultural crop yield.',
+      doi: '10.1007/IDAA2025',
+      link: 'https://github.com/zafor4',
+      pdfUrl: '/documents/dragon_fruit_research.pdf',
+      tags: ['Deep Learning', 'Computer Vision', 'Agricultural AI', 'Image Classification']
     },
     {
       id: '2',
-      title: 'Scalable Micro-Frontends & Design Systems in High-Throughput Fintech Applications',
-      publisher: 'Springer Journal of Systems and Software',
-      year: '2024',
-      authors: 'Humayra Arzooman, Rahman Chowdhury',
-      abstract: 'An empirical investigation into design token synchronization across micro-frontend architectures, reducing UI regression bugs by 45% in production environments.',
-      doi: '10.1007/s10664-024-09823-x',
-      link: 'https://springer.com/journal/article/2024',
-      pdfUrl: '/documents/research_paper_2.pdf',
-      tags: ['Design Systems', 'Micro-Frontends', 'Product Design']
+      title: 'M SMART: An Automated Multi Stage Semantic Evaluation Pipeline for Job Candidate Compatibility Assessment in the Tech Industry',
+      publisher: 'The International Conference on Recent Progresses in Science, Engineering and Technology (ICRPSET-2026)',
+      year: '2026',
+      authors: 'MD ZAFOR IQBAL, et al.',
+      abstract: 'Submitted research paper introducing an automated AI semantic evaluation pipeline for candidate resume profiling, skill matching, and technical compatibility scoring.',
+      doi: '',
+      link: '',
+      pdfUrl: '/documents/msmart_research.pdf',
+      tags: ['NLP', 'Sentence Transformers', 'Semantic Matching', 'AI Recruitment']
+    }
+  ],
+  activities: [
+    {
+      id: '1',
+      title: 'React.js Course Instructor',
+      category: 'Teaching & Instruction',
+      organization: 'NCSA-EDGE Project Training Program (BCC & ICT Division) | Daffodil International University',
+      date: '05/2026 – 06/2026',
+      description: 'Instructed the "SPA Development with React.js" course for 25+ learners through hands-on coding sessions, state management, REST API integration, and deployment practices.',
+      image: '/assets/professional_office.png',
+      link: 'https://github.com/zafor4'
+    },
+    {
+      id: '2',
+      title: 'M.Sc. in Computer Science & Engineering',
+      category: 'Education & Academics',
+      organization: 'Daffodil International University, Dhaka',
+      date: '05/2026 – Present',
+      description: 'Advanced graduate studies focused on Data Mining, Machine Learning, and Distributed Software Architectures.',
+      image: '/assets/autovion.png',
+      link: ''
+    },
+    {
+      id: '3',
+      title: 'B.Sc. in Computer Science & Engineering (CGPA: 3.80/4.00)',
+      category: 'Education & Academics',
+      organization: 'Daffodil International University, Dhaka',
+      date: '01/2022 – 12/2025',
+      description: 'Graduated with high distinction (CGPA 3.80/4.00). Specialized in Software Engineering, Algorithms, and Machine Learning.',
+      image: '/assets/zentra.png',
+      link: ''
     }
   ],
   contact: {
     location: 'DHAKA, BANGLADESH',
-    email: 'adinahawaldar895@gmail.com',
-    linkedin: 'https://linkedin.com/in/adina-hawaldar-17az6',
-    github: 'https://github.com/adinahawaldar',
-    figma: 'https://figma.com/@adinahawaldar',
-    twitter: 'https://twitter.com/@adina_hawaldar',
-    githubUsername: 'adinahawaldar',
+    email: 'xoy4444@gmail.com',
+    linkedin: 'https://linkedin.com/in/zaforiqbalxoy',
+    github: 'https://github.com/zafor4',
+    figma: 'https://figma.com/@zaforiqbal',
+    twitter: 'https://twitter.com/@zaforiqbal',
+    githubUsername: 'zafor4',
     officeImageUrl: '/assets/professional_office.png'
   }
 };
@@ -189,6 +193,7 @@ export const PortfolioProvider = ({ children }) => {
           experiences: res.experiences?.length ? res.experiences : defaultData.experiences,
           skills: res.skills?.length ? res.skills : defaultData.skills,
           publications: res.publications?.length ? res.publications : defaultData.publications,
+          activities: res.activities?.length ? res.activities : defaultData.activities,
           contact: res.contact ? { ...defaultData.contact, ...res.contact } : defaultData.contact,
         });
       }

@@ -19,10 +19,10 @@ model User {
 
 model Profile {
   id               String   @id @default(uuid())
-  name             String   @default("Humayra Arzooman")
-  title            String   @default("UI/UX Designer & Product Designer")
+  name             String   @default("MD ZAFOR IQBAL")
+  title            String   @default("Software Engineer & Programming Instructor")
   location         String   @default("Dhaka, Bangladesh")
-  statement        String   @default("[A product-focused Designer & Founder from Bangladesh, building high-performance digital experiences where modern design meets scalable technology, cloud innovation, and intelligent solutions.]")
+  statement        String   @default("[Computer Science and Engineering graduate (CGPA 3.80/4.00) and M.Sc. candidate with professional software engineering experience, published research in Deep Learning & AI, and hands-on teaching experience in React.js and modern Web Development.]")
   availableForWork Boolean  @default(true)
   resumeUrl        String   @default("/resume.pdf")
   avatarUrl        String   @default("/assets/adina.jpeg")
@@ -32,6 +32,7 @@ model Profile {
   showSkills       Boolean  @default(true)
   showGithub       Boolean  @default(true)
   showPublications Boolean  @default(true)
+  showActivities   Boolean  @default(true)
   showContact      Boolean  @default(true)
   updatedAt        DateTime @updatedAt
 
@@ -84,7 +85,7 @@ model Publication {
   title       String
   publisher   String   @default("IEEE / International Conference")
   year        String   @default("2025")
-  authors     String   @default("Humayra Arzooman, et al.")
+  authors     String   @default("MD ZAFOR IQBAL, et al.")
   abstract    String
   doi         String?
   pdfUrl      String?
@@ -97,15 +98,31 @@ model Publication {
   @@map("publications")
 }
 
+model Activity {
+  id           String   @id @default(uuid())
+  title        String
+  category     String   @default("Teaching & Instruction")
+  organization String
+  date         String
+  description  String
+  image        String?
+  link         String?
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("activities")
+}
+
 model Contact {
   id             String   @id @default(uuid())
   location       String   @default("DHAKA, BANGLADESH")
-  email          String   @default("adinahawaldar895@gmail.com")
-  linkedin       String   @default("https://linkedin.com/in/adina-hawaldar-17az6")
-  github         String   @default("https://github.com/adinahawaldar")
-  figma          String   @default("https://figma.com/@adinahawaldar")
-  twitter        String   @default("https://twitter.com/@adina_hawaldar")
-  githubUsername String   @default("adinahawaldar")
+  email          String   @default("xoy4444@gmail.com")
+  linkedin       String   @default("https://linkedin.com/in/zaforiqbalxoy")
+  github         String   @default("https://github.com/zafor4")
+  figma          String   @default("https://figma.com/@zaforiqbal")
+  twitter        String   @default("https://twitter.com/@zaforiqbal")
+  githubUsername String   @default("zafor4")
   officeImageUrl String   @default("/assets/professional_office.png")
   updatedAt      DateTime @updatedAt
 

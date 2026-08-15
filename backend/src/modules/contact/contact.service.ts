@@ -6,17 +6,17 @@ export class ContactService implements OnModuleInit {
   constructor(private prisma: PrismaService) {}
 
   async onModuleInit() {
-    const count = await this.prisma.contact.count();
-    if (count === 0) {
+    const contact = await this.prisma.contact.findFirst();
+    if (!contact) {
       await this.prisma.contact.create({
         data: {
           location: 'DHAKA, BANGLADESH',
-          email: 'adinahawaldar895@gmail.com',
-          linkedin: 'https://linkedin.com/in/adina-hawaldar-17az6',
-          github: 'https://github.com/adinahawaldar',
-          figma: 'https://figma.com/@adinahawaldar',
-          twitter: 'https://twitter.com/@adina_hawaldar',
-          githubUsername: 'adinahawaldar',
+          email: 'xoy4444@gmail.com',
+          linkedin: 'https://linkedin.com/in/zaforiqbalxoy',
+          github: 'https://github.com/zafor4',
+          figma: 'https://figma.com/@zaforiqbal',
+          twitter: 'https://twitter.com/@zaforiqbal',
+          githubUsername: 'zafor4',
           officeImageUrl: '/assets/professional_office.png',
         },
       });
@@ -24,23 +24,31 @@ export class ContactService implements OnModuleInit {
   }
 
   async getContact() {
-    const contacts = await this.prisma.contact.findMany();
-    return contacts[0];
+    return this.prisma.contact.findFirst();
   }
 
-  async updateContact(dto: any) {
+  async updateContact(data: any) {
     const contact = await this.getContact();
-    if (dto.github) {
-      const cleanUrl = dto.github.trim().replace(/\/+$/, '');
-      const parts = cleanUrl.split('/');
-      const extractedUsername = parts.pop();
-      if (extractedUsername && extractedUsername !== 'github.com') {
-        dto.githubUsername = extractedUsername;
+
+    if (data.github && typeof data.github === 'string') {
+      try {
+        const cleanUrl = data.github.trim().replace(/\/+$/, '');
+        const parts = cleanUrl.split('/');
+        const derivedUsername = parts[parts.length - 1];
+        if (derivedUsername && derivedUsername !== 'github.com') {
+          data.githubUsername = derivedUsername;
+        }
+      } catch (e) {
+        console.warn('Could not derive GitHub username from:', data.github);
       }
     }
-    return this.prisma.contact.update({
-      where: { id: contact.id },
-      data: dto,
-    });
+
+    if (contact) {
+      return this.prisma.contact.update({
+        where: { id: contact.id },
+        data,
+      });
+    }
+    return this.prisma.contact.create({ data });
   }
 }

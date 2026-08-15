@@ -6,32 +6,42 @@ export class ProfileService implements OnModuleInit {
   constructor(private prisma: PrismaService) {}
 
   async onModuleInit() {
-    const count = await this.prisma.profile.count();
-    if (count === 0) {
+    const profile = await this.prisma.profile.findFirst();
+    if (!profile) {
       await this.prisma.profile.create({
         data: {
-          name: 'Humayra Arzooman',
-          title: 'UI/UX Designer & Product Designer',
+          name: 'MD ZAFOR IQBAL',
+          title: 'Software Engineer & Programming Instructor',
           location: 'Dhaka, Bangladesh',
-          statement: '[A product-focused Designer & Founder from Bangladesh, building high-performance digital experiences where modern design meets scalable technology, cloud innovation, and intelligent solutions.]',
+          statement: '[Computer Science and Engineering graduate (CGPA 3.80/4.00) and M.Sc. candidate with professional software engineering experience, published research in Deep Learning & AI, and hands-on teaching experience in React.js and modern Web Development.]',
           availableForWork: true,
           resumeUrl: '/resume.pdf',
           avatarUrl: '/assets/adina.jpeg',
+          showHero: true,
+          showProjects: true,
+          showExperience: true,
+          showSkills: true,
+          showGithub: true,
+          showPublications: true,
+          showActivities: true,
+          showContact: true,
         },
       });
     }
   }
 
   async getProfile() {
-    const profiles = await this.prisma.profile.findMany();
-    return profiles[0];
+    return this.prisma.profile.findFirst();
   }
 
-  async updateProfile(dto: any) {
+  async updateProfile(data: any) {
     const profile = await this.getProfile();
-    return this.prisma.profile.update({
-      where: { id: profile.id },
-      data: dto,
-    });
+    if (profile) {
+      return this.prisma.profile.update({
+        where: { id: profile.id },
+        data,
+      });
+    }
+    return this.prisma.profile.create({ data });
   }
 }

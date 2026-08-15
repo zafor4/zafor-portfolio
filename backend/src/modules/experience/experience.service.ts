@@ -8,53 +8,61 @@ export class ExperienceService implements OnModuleInit {
   async onModuleInit() {
     const count = await this.prisma.experience.count();
     if (count === 0) {
-      const defaultExp = [
-        {
-          company: 'IDEM Studio',
-          role: 'Founder & CEO',
-          duration: '2026 - current',
-          desc: 'Founder of Idem Studio, creating modern digital experiences through design, development, AI, and automation from concept to high-performance products.',
-          sortOrder: 1,
-        },
-        {
-          company: 'HEProAI',
-          role: 'Cloud Engineer',
-          duration: 'Nov 2025 - Jan 2026',
-          desc: 'Architected scalable AWS environments and automated security protocols for high-availability applications.',
-          sortOrder: 2,
-        },
-        {
-          company: 'Pinnacle Infotech',
-          role: 'Cloud Engineer',
-          duration: 'June 2024 - Aug 2024',
-          desc: 'Deployed enterprise infrastructure using CloudFormation and boosted deployment velocity by 50%.',
-          sortOrder: 3,
-        },
-      ];
-      for (const e of defaultExp) {
-        await this.prisma.experience.create({ data: e });
-      }
+      await this.prisma.experience.createMany({
+        data: [
+          {
+            company: 'CSE Tech',
+            role: 'Software Engineer (Frontend)',
+            duration: '01/2026 – Present',
+            desc: 'Develop enterprise web applications using Next.js, React.js, NestJS, and PostgreSQL. Rebuilt company portfolio and digital paperless judiciary platform eFamily Court. Guide junior developers and interns.',
+            sortOrder: 1,
+          },
+          {
+            company: 'Fawz Biz Enterprises',
+            role: 'Full Stack Developer & Database Specialist',
+            duration: '02/2026 – Present',
+            desc: 'Design relational & non-relational database structures, SQL queries, Prisma ORM integrations, and RESTful APIs for enterprise software projects.',
+            sortOrder: 2,
+          },
+          {
+            company: 'SharpBD IT Solution',
+            role: 'Frontend Developer',
+            duration: '04/2025 – 09/2025',
+            desc: 'Developed real-time surveillance & mapping system using WebSockets & MapLibre, and full-stack travel booking platform.',
+            sortOrder: 3,
+          },
+          {
+            company: 'SharpBD IT Solution',
+            role: 'React.js Developer (Intern)',
+            duration: '01/2025 – 04/2025',
+            desc: 'Integrated RESTful APIs using Axios and built responsive user interfaces using Bootstrap and CSS.',
+            sortOrder: 4,
+          },
+        ],
+      });
     }
   }
 
   async findAll() {
     return this.prisma.experience.findMany({
-      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+      orderBy: { sortOrder: 'asc' },
     });
   }
 
-  async create(dto: any) {
-    return this.prisma.experience.create({ data: dto });
+  async create(data: any) {
+    return this.prisma.experience.create({ data });
   }
 
-  async update(id: string, dto: any) {
+  async update(id: string, data: any) {
     return this.prisma.experience.update({
       where: { id },
-      data: dto,
+      data,
     });
   }
 
   async remove(id: string) {
-    await this.prisma.experience.delete({ where: { id } });
+    return this.prisma.experience.delete({
+      where: { id },
+    });
   }
 }
