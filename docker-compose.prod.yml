@@ -16,6 +16,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - default
 
   minio:
     image: minio/minio:latest
@@ -32,6 +34,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - default
 
   backend:
     build:
@@ -54,6 +58,8 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+    networks:
+      - default
 
   frontend:
     build:
@@ -63,6 +69,8 @@ services:
     restart: always
     depends_on:
       - backend
+    networks:
+      - default
 
   nginx:
     image: nginx:alpine
@@ -77,7 +85,14 @@ services:
     depends_on:
       - frontend
       - backend
+    networks:
+      - default
+      - shared-net
 
 volumes:
   postgres_data:
   minio_data:
+
+networks:
+  shared-net:
+    external: true
