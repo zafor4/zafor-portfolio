@@ -21,6 +21,9 @@ Connect via SSH:
 ssh zaforiqbal@4.252.0.112
 ```
 
+
+Abcd2.02Abcd2.02
+
 Pull updates & rebuild containers:
 ```bash
 cd portfolio
