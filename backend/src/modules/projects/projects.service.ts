@@ -6,7 +6,9 @@ export class ProjectsService implements OnModuleInit {
   constructor(private prisma: PrismaService) {}
 
   async onModuleInit() {
-    await this.prisma.project.deleteMany();
+    const count = await this.prisma.project.count();
+    if (count > 0) return;
+
     await this.prisma.project.createMany({
       data: [
         {
@@ -76,3 +78,4 @@ export class ProjectsService implements OnModuleInit {
     });
   }
 }
+

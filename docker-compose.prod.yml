@@ -38,9 +38,7 @@ services:
       - default
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: ${BACKEND_IMAGE:-ghcr.io/zafor4/portfolio-backend:latest}
     container_name: portfolio-backend
     restart: always
     environment:
@@ -62,9 +60,7 @@ services:
       - default
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: ${FRONTEND_IMAGE:-ghcr.io/zafor4/portfolio-frontend:latest}
     container_name: portfolio-frontend
     restart: always
     depends_on:
@@ -96,3 +92,5 @@ volumes:
 networks:
   shared-net:
     external: true
+
+

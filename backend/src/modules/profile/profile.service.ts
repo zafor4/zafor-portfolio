@@ -25,12 +25,7 @@ export class ProfileService implements OnModuleInit {
       showContact: true,
     };
 
-    if (profile) {
-      await this.prisma.profile.update({
-        where: { id: profile.id },
-        data,
-      });
-    } else {
+    if (!profile) {
       await this.prisma.profile.create({ data });
     }
   }
@@ -50,4 +45,5 @@ export class ProfileService implements OnModuleInit {
     return this.prisma.profile.create({ data });
   }
 }
+
 

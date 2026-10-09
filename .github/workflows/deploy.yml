@@ -1,0 +1,95 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: azure-prod
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  images:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: ${{ github.event_name == 'push' }}
+          tags: |
+            ghcr.io/zafor4/portfolio-backend:${{ github.sha }}
+            ghcr.io/zafor4/portfolio-backend:latest
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+          labels: |
+            org.opencontainers.image.source=https://github.com/zafor4/zafor-portfolio
+
+      - name: Build frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: ${{ github.event_name == 'push' }}
+          tags: |
+            ghcr.io/zafor4/portfolio-frontend:${{ github.sha }}
+            ghcr.io/zafor4/portfolio-frontend:latest
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
+          labels: |
+            org.opencontainers.image.source=https://github.com/zafor4/zafor-portfolio
+
+      - name: Make packages public
+        if: github.event_name == 'push'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for name in portfolio-backend portfolio-frontend; do
+            gh api --method PATCH "/user/packages/container/${name}" -f visibility=public
+          done
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull images and restart app containers
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          command_timeout: 15m
+          script: |
+            set -eu
+            cd portfolio
+            git pull --ff-only origin main
+            export BACKEND_IMAGE=ghcr.io/zafor4/portfolio-backend:${{ github.sha }}
+            export FRONTEND_IMAGE=ghcr.io/zafor4/portfolio-frontend:${{ github.sha }}
+            docker compose -f docker-compose.prod.yml pull backend frontend
+            docker compose -f docker-compose.prod.yml up -d --no-deps backend frontend
+            docker exec portfolio-nginx nginx -s reload
+
+      - name: Check the live site
+        run: |
+          curl -fsS --retry 8 --retry-delay 5 --retry-all-errors https://zaforiq.me/ -o /dev/null
+          curl -fsS --retry 8 --retry-delay 5 --retry-all-errors https://zaforiq.me/api/portfolio -o /dev/null
+

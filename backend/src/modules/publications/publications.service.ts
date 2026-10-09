@@ -6,7 +6,9 @@ export class PublicationsService implements OnModuleInit {
   constructor(private prisma: PrismaService) {}
 
   async onModuleInit() {
-    await this.prisma.publication.deleteMany();
+    const count = await this.prisma.publication.count();
+    if (count > 0) return;
+
     await this.prisma.publication.createMany({
       data: [
         {
@@ -60,3 +62,4 @@ export class PublicationsService implements OnModuleInit {
     });
   }
 }
+

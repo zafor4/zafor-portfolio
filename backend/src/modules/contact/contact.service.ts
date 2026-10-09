@@ -18,12 +18,7 @@ export class ContactService implements OnModuleInit {
       officeImageUrl: '/assets/professional_office.png',
     };
 
-    if (contact) {
-      await this.prisma.contact.update({
-        where: { id: contact.id },
-        data,
-      });
-    } else {
+    if (!contact) {
       await this.prisma.contact.create({ data });
     }
   }
@@ -57,3 +52,4 @@ export class ContactService implements OnModuleInit {
     return this.prisma.contact.create({ data });
   }
 }
+

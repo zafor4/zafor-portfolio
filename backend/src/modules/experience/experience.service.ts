@@ -6,7 +6,9 @@ export class ExperienceService implements OnModuleInit {
   constructor(private prisma: PrismaService) {}
 
   async onModuleInit() {
-    await this.prisma.experience.deleteMany();
+    const count = await this.prisma.experience.count();
+    if (count > 0) return;
+
     await this.prisma.experience.createMany({
       data: [
         {
@@ -64,3 +66,4 @@ export class ExperienceService implements OnModuleInit {
     });
   }
 }
+

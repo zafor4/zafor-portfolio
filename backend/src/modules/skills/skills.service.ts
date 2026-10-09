@@ -6,7 +6,9 @@ export class SkillsService implements OnModuleInit {
   constructor(private prisma: PrismaService) {}
 
   async onModuleInit() {
-    await this.prisma.skill.deleteMany();
+    const count = await this.prisma.skill.count();
+    if (count > 0) return;
+
     await this.prisma.skill.createMany({
       data: [
         { name: 'C++', category: 'Programming & CS', icon: 'Code2', bg: 'bg-[#00599C]', color: 'text-white', sortOrder: 1 },
@@ -49,3 +51,4 @@ export class SkillsService implements OnModuleInit {
     });
   }
 }
+
