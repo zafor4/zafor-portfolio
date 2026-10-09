@@ -4,7 +4,7 @@ import { loginAdmin } from '../services/api';
 import { Lock, Mail, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export const AdminLogin = () => {
-  const [email, setEmail] = useState('admin@arzooman.com');
+  const [email, setEmail] = useState('admin@zaforiq.me');
   const [password, setPassword] = useState('admin123');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -63,7 +63,7 @@ export const AdminLogin = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-muted border border-border rounded-xl text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20"
-                placeholder="admin@arzooman.com"
+                placeholder="admin@zaforiq.me"
               />
             </div>
           </div>
@@ -106,3 +106,4 @@ export const AdminLogin = () => {
     </div>
   );
 };
+

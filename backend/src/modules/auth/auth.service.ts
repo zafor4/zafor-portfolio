@@ -16,12 +16,12 @@ export class AuthService implements OnModuleInit {
       const hashedPassword = await bcrypt.hash('admin123', 10);
       await this.prisma.user.create({
         data: {
-          email: 'admin@arzooman.com',
+          email: 'admin@zaforiq.me',
           passwordHash: hashedPassword,
           role: 'admin',
         },
       });
-      console.log('Seeded default admin user via Prisma: admin@arzooman.com / admin123');
+      console.log('Seeded default admin user via Prisma: admin@zaforiq.me / admin123');
     }
   }
 
@@ -41,3 +41,4 @@ export class AuthService implements OnModuleInit {
     };
   }
 }
+

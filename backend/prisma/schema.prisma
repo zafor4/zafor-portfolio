@@ -25,7 +25,7 @@ model Profile {
   statement        String   @default("[Computer Science and Engineering graduate (CGPA 3.80/4.00) and M.Sc. candidate with professional software engineering experience, published research in Deep Learning & AI, and hands-on teaching experience in React.js and modern Web Development.]")
   availableForWork Boolean  @default(true)
   resumeUrl        String   @default("/resume.pdf")
-  avatarUrl        String   @default("/assets/adina.jpeg")
+  avatarUrl        String   @default("/assets/zafor.jpeg")
   showHero         Boolean  @default(true)
   showProjects     Boolean  @default(true)
   showExperience   Boolean  @default(true)
@@ -128,3 +128,4 @@ model Contact {
 
   @@map("contact")
 }
+

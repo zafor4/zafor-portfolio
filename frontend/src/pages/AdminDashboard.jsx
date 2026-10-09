@@ -57,7 +57,7 @@ export const AdminDashboard = () => {
   const [isPubModalOpen, setIsPubModalOpen] = useState(false);
   const [editingPub, setEditingPub] = useState(null);
   const [pubForm, setPubForm] = useState({
-    title: '', publisher: 'IEEE International Conference', year: '2025', authors: 'Humayra Arzooman, et al.', abstract: '', doi: '', pdfUrl: '', link: '', tags: 'UI/UX Design, Cloud Telemetry'
+    title: '', publisher: 'IEEE International Conference', year: '2025', authors: 'MD ZAFOR IQBAL, et al.', abstract: '', doi: '', pdfUrl: '', link: '', tags: 'UI/UX Design, Cloud Telemetry'
   });
 
   useEffect(() => {
@@ -343,7 +343,7 @@ export const AdminDashboard = () => {
       }
       setIsPubModalOpen(false);
       setEditingPub(null);
-      setPubForm({ title: '', publisher: 'IEEE International Conference', year: '2025', authors: 'Humayra Arzooman, et al.', abstract: '', doi: '', pdfUrl: '', link: '', tags: 'UI/UX Design, Cloud Telemetry' });
+      setPubForm({ title: '', publisher: 'IEEE International Conference', year: '2025', authors: 'MD ZAFOR IQBAL, et al.', abstract: '', doi: '', pdfUrl: '', link: '', tags: 'UI/UX Design, Cloud Telemetry' });
       await refreshData();
     } catch (err) {
       showNotification('Publication save failed: ' + (err.response?.data?.message || err.message));
@@ -377,7 +377,7 @@ export const AdminDashboard = () => {
       });
     } else {
       setEditingPub(null);
-      setPubForm({ title: '', publisher: 'IEEE International Conference', year: '2025', authors: 'Humayra Arzooman, et al.', abstract: '', doi: '', pdfUrl: '', link: '', tags: 'UI/UX Design, Cloud Telemetry' });
+      setPubForm({ title: '', publisher: 'IEEE International Conference', year: '2025', authors: 'MD ZAFOR IQBAL, et al.', abstract: '', doi: '', pdfUrl: '', link: '', tags: 'UI/UX Design, Cloud Telemetry' });
     }
     setIsPubModalOpen(true);
   };
@@ -417,11 +417,11 @@ export const AdminDashboard = () => {
           {/* Brand Header */}
           <div className="flex items-center gap-3.5 mb-8 pb-6 border-b border-border">
             <div className="w-11 h-11 rounded-2xl bg-foreground text-background flex items-center justify-center font-extrabold text-lg shadow-md">
-              H
+              Z
             </div>
             <div>
               <h2 className="font-bold text-base leading-tight text-foreground">CMS Studio</h2>
-              <span className="text-xs text-muted-foreground">Humayra Arzooman Admin</span>
+              <span className="text-xs text-muted-foreground">Zafor Iqbal Admin</span>
             </div>
           </div>
 
@@ -1286,7 +1286,7 @@ export const AdminDashboard = () => {
                       <input
                         type="text"
                         required
-                        placeholder="Humayra Arzooman, et al."
+                        placeholder="MD ZAFOR IQBAL, et al."
                         value={pubForm.authors}
                         onChange={e => setPubForm({ ...pubForm, authors: e.target.value })}
                         className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"

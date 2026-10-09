@@ -7,10 +7,10 @@ export const Contact = () => {
   const contact = data?.contact || {};
 
   const socialLinks = [
-    { name: "LINKEDIN", href: contact.linkedin || "https://linkedin.com/in/adina-hawaldar-17az6" },
-    { name: "GITHUB", href: contact.github || "https://github.com/adinahawaldar" },
-    { name: "FIGMA", href: contact.figma || "https://figma.com/@adinahawaldar" },
-    { name: "TWITTER", href: contact.twitter || "https://twitter.com/@adina_hawaldar" }
+    { name: "LINKEDIN", href: contact.linkedin || "https://linkedin.com/in/zaforiqbalxoy" },
+    { name: "GITHUB", href: contact.github || "https://github.com/zafor4" },
+    { name: "FIGMA", href: contact.figma || "https://figma.com/@zaforiqbal" },
+    { name: "TWITTER", href: contact.twitter || "https://twitter.com/@zaforiqbal" }
   ];
 
   return (
@@ -64,10 +64,10 @@ export const Contact = () => {
                 EMAIL:
               </span>
               <a
-                href={`mailto:${contact.email || 'adinahawaldar895@gmail.com'}`}
+                href={`mailto:${contact.email || 'xoy4444@gmail.com'}`}
                 className="text-lg sm:text-xl md:text-2xl font-bold tracking-wider uppercase underline decoration-2 underline-offset-8 hover:text-foreground/70 transition-colors break-all"
               >
-                {contact.email || 'ADINAHAWALDAR895@GMAIL.COM'}
+                {contact.email || 'XOY4444@GMAIL.COM'}
               </a>
             </div>
 
@@ -97,3 +97,4 @@ export const Contact = () => {
     </section>
   );
 };
+

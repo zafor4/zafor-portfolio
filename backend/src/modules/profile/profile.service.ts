@@ -14,7 +14,7 @@ export class ProfileService implements OnModuleInit {
       statement: '[Computer Science and Engineering graduate (CGPA 3.80/4.00) and M.Sc. candidate with professional software engineering experience, published research in Deep Learning & AI, and hands-on teaching experience in React.js and modern Web Development.]',
       availableForWork: true,
       resumeUrl: '/resume.pdf',
-      avatarUrl: '/assets/adina.jpeg',
+      avatarUrl: '/assets/zafor.jpeg',
       showHero: true,
       showProjects: true,
       showExperience: true,
@@ -50,3 +50,4 @@ export class ProfileService implements OnModuleInit {
     return this.prisma.profile.create({ data });
   }
 }
+

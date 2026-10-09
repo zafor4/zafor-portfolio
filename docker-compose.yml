@@ -46,7 +46,7 @@ services:
       NODE_ENV: production
       PORT: 3000
       DATABASE_URL: postgresql://${POSTGRES_USER:-portfolio_user}:${POSTGRES_PASSWORD:-portfolio_password}@postgres:5432/${POSTGRES_DB:-portfolio_db}?schema=public
-      JWT_SECRET: ${JWT_SECRET:-super-secret-key-arzooman-portfolio}
+      JWT_SECRET: ${JWT_SECRET:-super-secret-key-zaforiq-portfolio}
       MINIO_ENDPOINT: minio
       MINIO_PORT: 9000
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}

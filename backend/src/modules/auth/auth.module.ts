@@ -12,7 +12,7 @@ import { JwtStrategy } from './jwt.strategy';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET', 'super-secret-key-arzooman-portfolio'),
+        secret: configService.get<string>('JWT_SECRET', 'super-secret-key-zaforiq-portfolio'),
         signOptions: { expiresIn: '7d' },
       }),
       inject: [ConfigService],
@@ -23,3 +23,4 @@ import { JwtStrategy } from './jwt.strategy';
   exports: [AuthService],
 })
 export class AuthModule {}
+

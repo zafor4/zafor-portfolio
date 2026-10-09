@@ -18,7 +18,7 @@ export const Hero = () => {
           className="text-center my-6 md:my-12"
         >
           <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-[110px] xl:text-[135px] font-bold leading-[0.9] tracking-tighter uppercase text-foreground select-none">
-            {profile.name || 'HUMAYRA ARZOOMAN'}
+            {profile.name || 'MD ZAFOR IQBAL'}
           </h1>
         </motion.div>
 
@@ -83,3 +83,4 @@ export const Hero = () => {
     </section>
   );
 };
+

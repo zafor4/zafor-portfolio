@@ -14,7 +14,7 @@ export const GitHubStats = () => {
       const url = contact.github.trim();
       return url.startsWith('http') ? url : `https://${url}`;
     }
-    return 'https://github.com/adinahawaldar';
+    return 'https://github.com/zafor4';
   }, [contact.github]);
 
   // Extract GitHub username dynamically from contact.github or contact.githubUsername
@@ -28,7 +28,7 @@ export const GitHubStats = () => {
     if (contact.githubUsername && contact.githubUsername.trim()) {
       return contact.githubUsername.trim();
     }
-    return 'adinahawaldar';
+    return 'zafor4';
   }, [contact.github, contact.githubUsername]);
 
   const [stats, setStats] = useState({
@@ -167,3 +167,4 @@ export const GitHubStats = () => {
     </section>
   );
 };
+

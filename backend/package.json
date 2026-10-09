@@ -2,7 +2,7 @@
   "name": "portfolio-backend",
   "version": "1.0.0",
   "description": "NestJS backend API with Prisma ORM for dynamic portfolio management",
-  "author": "Humayra Arzooman",
+  "author": "Zafor Iqbal",
   "private": true,
   "license": "MIT",
   "scripts": {
@@ -49,3 +49,4 @@
     "typescript": "^5.7.3"
   }
 }
+

@@ -8,7 +8,7 @@ export const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
   const { data } = usePortfolio();
   const profile = data?.profile || {};
-  const profileName = profile.name || 'Humayra Arzooman';
+  const profileName = profile.name || 'MD ZAFOR IQBAL';
 
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -116,3 +116,4 @@ export const Navbar = () => {
     </header>
   );
 };
+
