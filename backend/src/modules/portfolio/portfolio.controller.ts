@@ -38,7 +38,7 @@ export class PortfolioController {
       profile: profile
         ? { ...profile, avatarUrl: fix(profile.avatarUrl), resumeUrl: fix(profile.resumeUrl) }
         : profile,
-      projects: projects.map((p) => ({ ...p, image: fix(p.image) })),
+      projects: projects.map((p) => ({ ...p, image: fix(p.image), logo: fix(p.logo) })),
       experiences: experiences.map((e) => ({ ...e, companyLogo: fix(e.companyLogo) })),
       skills,
       contact: contact

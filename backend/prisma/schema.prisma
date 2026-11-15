@@ -44,6 +44,7 @@ model Project {
   title        String
   type         String   @default("website")
   image        String
+  logo         String?
   description  String
   technologies String[]
   github       String?

@@ -132,9 +132,24 @@ export const Projects = () => {
                   <div className="p-6 md:p-8 flex flex-col justify-between flex-1">
                     <div>
                       <div className="flex items-center justify-between gap-4 mb-2">
-                        <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground group-hover:translate-x-1 transition-transform">
-                          {project.title}
-                        </h3>
+                        <div className="flex items-center gap-3 min-w-0 group-hover:translate-x-1 transition-transform">
+                          <div className="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-foreground/5 border border-foreground/10 overflow-hidden shrink-0 flex items-center justify-center">
+                            {project.logo ? (
+                              <img
+                                src={project.logo}
+                                alt=""
+                                className="w-full h-full object-contain p-1"
+                              />
+                            ) : (
+                              <span className="text-sm font-extrabold text-foreground/35">
+                                {(project.title || '?').charAt(0)}
+                              </span>
+                            )}
+                          </div>
+                          <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground truncate">
+                            {project.title}
+                          </h3>
+                        </div>
                         {project.live ? (
                           <a
                             href={project.live}

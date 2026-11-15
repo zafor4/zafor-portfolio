@@ -40,7 +40,7 @@ export const AdminDashboard = () => {
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [projectForm, setProjectForm] = useState({
-    title: '', type: 'website', image: '', description: '', technologies: 'React, Tailwind', github: '', live: '', figma: ''
+    title: '', type: 'website', image: '', logo: '', description: '', technologies: 'React, Tailwind', github: '', live: '', figma: ''
   });
 
   // Experience modal
@@ -202,7 +202,7 @@ export const AdminDashboard = () => {
       }
       setIsProjectModalOpen(false);
       setEditingProject(null);
-      setProjectForm({ title: '', type: 'website', image: '', description: '', technologies: 'React, Tailwind', github: '', live: '', figma: '' });
+      setProjectForm({ title: '', type: 'website', image: '', logo: '', description: '', technologies: 'React, Tailwind', github: '', live: '', figma: '' });
       await refreshData();
     } catch (err) {
       showNotification('Project save failed: ' + (err.response?.data?.message || err.message));
@@ -227,6 +227,7 @@ export const AdminDashboard = () => {
         title: proj.title || '',
         type: proj.type || 'website',
         image: proj.image || '',
+        logo: proj.logo || '',
         description: proj.description || '',
         technologies: Array.isArray(proj.technologies) ? proj.technologies.join(', ') : proj.technologies || '',
         github: proj.github || '',
@@ -235,7 +236,7 @@ export const AdminDashboard = () => {
       });
     } else {
       setEditingProject(null);
-      setProjectForm({ title: '', type: 'website', image: '', description: '', technologies: 'React, Tailwind', github: '', live: '', figma: '' });
+      setProjectForm({ title: '', type: 'website', image: '', logo: '', description: '', technologies: 'React, Tailwind', github: '', live: '', figma: '' });
     }
     setIsProjectModalOpen(true);
   };
@@ -846,7 +847,16 @@ export const AdminDashboard = () => {
                       </div>
                     </div>
                     <div className="p-6">
-                      <h3 className="text-lg font-bold text-foreground">{proj.title}</h3>
+                      <div className="flex items-center gap-3 mb-1">
+                        <div className="w-9 h-9 rounded-lg bg-muted border border-border overflow-hidden shrink-0 flex items-center justify-center">
+                          {proj.logo ? (
+                            <img src={proj.logo} alt="" className="w-full h-full object-contain p-1" />
+                          ) : (
+                            <span className="text-xs font-extrabold text-foreground/40">{(proj.title || '?').charAt(0)}</span>
+                          )}
+                        </div>
+                        <h3 className="text-lg font-bold text-foreground">{proj.title}</h3>
+                      </div>
                       <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">{proj.description}</p>
                       
                       <div className="flex flex-wrap gap-1.5 mt-4">
@@ -923,6 +933,39 @@ export const AdminDashboard = () => {
                           <option value="website">Website / Full Stack</option>
                           <option value="ui/ux">UI/UX Design</option>
                         </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-foreground/80 mb-1.5">Project Logo</label>
+                      <p className="text-[11px] text-muted-foreground mb-2">Shown before the project name. Upload or paste a URL.</p>
+                      <div className="flex items-start gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-muted border border-border overflow-hidden shrink-0 flex items-center justify-center">
+                          {projectForm.logo ? (
+                            <img src={projectForm.logo} alt="" className="w-full h-full object-contain p-1" />
+                          ) : (
+                            <span className="text-[10px] font-bold text-muted-foreground">Logo</span>
+                          )}
+                        </div>
+                        <div className="flex-1 flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="https://... or /media/..."
+                            value={projectForm.logo || ''}
+                            onChange={e => setProjectForm({ ...projectForm, logo: e.target.value })}
+                            className="flex-1 px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                          />
+                          <label className="px-3 py-2.5 bg-muted border border-border rounded-xl text-xs font-bold hover:bg-muted/80 cursor-pointer flex items-center gap-1 shrink-0">
+                            <Upload size={13} />
+                            <span>Upload</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={e => handleFileUpload(e, url => setProjectForm({ ...projectForm, logo: url }), 'projects')}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
                       </div>
                     </div>
 
