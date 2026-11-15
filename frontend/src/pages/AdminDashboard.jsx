@@ -46,7 +46,7 @@ export const AdminDashboard = () => {
   // Experience modal
   const [isExpModalOpen, setIsExpModalOpen] = useState(false);
   const [editingExp, setEditingExp] = useState(null);
-  const [expForm, setExpForm] = useState({ company: '', role: '', duration: '', desc: '' });
+  const [expForm, setExpForm] = useState({ company: '', companyUrl: '', companyLogo: '', role: '', duration: '', desc: '' });
 
   // Skill modal
   const [isSkillModalOpen, setIsSkillModalOpen] = useState(false);
@@ -253,7 +253,7 @@ export const AdminDashboard = () => {
       }
       setIsExpModalOpen(false);
       setEditingExp(null);
-      setExpForm({ company: '', role: '', duration: '', desc: '' });
+      setExpForm({ company: '', companyUrl: '', companyLogo: '', role: '', duration: '', desc: '' });
       await refreshData();
     } catch (err) {
       showNotification('Experience save failed: ' + (err.response?.data?.message || err.message));
@@ -274,10 +274,17 @@ export const AdminDashboard = () => {
   const openExpModal = (exp = null) => {
     if (exp) {
       setEditingExp(exp);
-      setExpForm({ company: exp.company || '', role: exp.role || '', duration: exp.duration || '', desc: exp.desc || '' });
+      setExpForm({
+        company: exp.company || '',
+        companyUrl: exp.companyUrl || '',
+        companyLogo: exp.companyLogo || '',
+        role: exp.role || '',
+        duration: exp.duration || '',
+        desc: exp.desc || '',
+      });
     } else {
       setEditingExp(null);
-      setExpForm({ company: '', role: '', duration: '', desc: '' });
+      setExpForm({ company: '', companyUrl: '', companyLogo: '', role: '', duration: '', desc: '' });
     }
     setIsExpModalOpen(true);
   };
@@ -1036,15 +1043,31 @@ export const AdminDashboard = () => {
             <div className="space-y-4">
               {(data.experiences || []).map((exp) => (
                 <div key={exp.id} className="bg-card border border-border p-6 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-3">
-                      <h3 className="text-base font-bold text-foreground">{exp.company}</h3>
-                      <span className="text-[10px] font-bold px-3 py-0.5 rounded-full bg-muted border border-border text-foreground/80">
-                        {exp.duration}
-                      </span>
+                  <div className="flex items-start gap-4 flex-1 min-w-0">
+                    <div className="w-12 h-12 rounded-xl bg-muted border border-border overflow-hidden shrink-0 flex items-center justify-center">
+                      {exp.companyLogo ? (
+                        <img src={exp.companyLogo} alt="" className="w-full h-full object-contain p-1" />
+                      ) : (
+                        <span className="text-sm font-extrabold text-foreground/40">
+                          {(exp.company || '?').charAt(0)}
+                        </span>
+                      )}
                     </div>
-                    <span className="text-xs font-semibold text-emerald-500 block">{exp.role}</span>
-                    <p className="text-xs text-muted-foreground leading-relaxed pt-1 max-w-2xl">{exp.desc}</p>
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <h3 className="text-base font-bold text-foreground">{exp.company}</h3>
+                        <span className="text-[10px] font-bold px-3 py-0.5 rounded-full bg-muted border border-border text-foreground/80">
+                          {exp.duration}
+                        </span>
+                      </div>
+                      <span className="text-xs font-semibold text-emerald-500 block">{exp.role}</span>
+                      {exp.companyUrl ? (
+                        <a href={exp.companyUrl} target="_blank" rel="noopener noreferrer" className="text-[11px] font-medium text-muted-foreground hover:text-foreground underline underline-offset-2">
+                          {exp.companyUrl.replace(/^https?:\/\//, '')}
+                        </a>
+                      ) : null}
+                      <p className="text-xs text-muted-foreground leading-relaxed pt-1 max-w-2xl">{exp.desc}</p>
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-2 self-end md:self-auto">
@@ -1088,6 +1111,50 @@ export const AdminDashboard = () => {
                         onChange={e => setExpForm({ ...expForm, company: e.target.value })}
                         className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
                       />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-foreground/80 mb-1.5">Company Website</label>
+                      <input
+                        type="url"
+                        placeholder="https://company.com"
+                        value={expForm.companyUrl || ''}
+                        onChange={e => setExpForm({ ...expForm, companyUrl: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-foreground/80 mb-1.5">Company Logo</label>
+                      <p className="text-[11px] text-muted-foreground mb-2">Upload a logo or paste an image URL.</p>
+                      <div className="flex items-start gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-muted border border-border overflow-hidden shrink-0 flex items-center justify-center">
+                          {expForm.companyLogo ? (
+                            <img src={expForm.companyLogo} alt="" className="w-full h-full object-contain p-1" />
+                          ) : (
+                            <span className="text-[10px] font-bold text-muted-foreground">Logo</span>
+                          )}
+                        </div>
+                        <div className="flex-1 flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="https://... or /media/..."
+                            value={expForm.companyLogo || ''}
+                            onChange={e => setExpForm({ ...expForm, companyLogo: e.target.value })}
+                            className="flex-1 px-4 py-2.5 bg-muted border border-border rounded-xl text-xs font-medium"
+                          />
+                          <label className="px-3 py-2.5 bg-muted border border-border rounded-xl text-xs font-bold hover:bg-muted/80 cursor-pointer flex items-center gap-1 shrink-0">
+                            <Upload size={13} />
+                            <span>Upload</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={e => handleFileUpload(e, url => setExpForm({ ...expForm, companyLogo: url }), 'companies')}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
+                      </div>
                     </div>
 
                     <div>

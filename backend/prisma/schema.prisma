@@ -57,13 +57,15 @@ model Project {
 }
 
 model Experience {
-  id        String   @id @default(uuid())
-  company   String
-  role      String
-  duration  String
-  desc      String
-  sortOrder Int      @default(0)
-  createdAt DateTime @default(now())
+  id          String   @id @default(uuid())
+  company     String
+  companyUrl  String?
+  companyLogo String?
+  role        String
+  duration    String
+  desc        String
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
 
   @@map("experiences")
 }
