@@ -81,16 +81,9 @@ services:
     depends_on:
       - frontend
       - backend
-    networks:
-      - default
-      - shared-net
 
 volumes:
   postgres_data:
   minio_data:
-
-networks:
-  shared-net:
-    external: true
 
 
