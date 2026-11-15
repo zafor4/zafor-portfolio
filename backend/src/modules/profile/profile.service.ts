@@ -27,6 +27,14 @@ export class ProfileService implements OnModuleInit {
 
     if (!profile) {
       await this.prisma.profile.create({ data });
+      return;
+    }
+
+    if (/humayra|arzooman/i.test(profile.name || '')) {
+      await this.prisma.profile.update({
+        where: { id: profile.id },
+        data,
+      });
     }
   }
 

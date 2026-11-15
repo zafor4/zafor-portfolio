@@ -7,7 +7,22 @@ export class SkillsService implements OnModuleInit {
 
   async onModuleInit() {
     const count = await this.prisma.skill.count();
-    if (count > 0) return;
+    const stale = await this.prisma.skill.findFirst({
+      where: {
+        OR: [
+          { name: 'Figma' },
+          { name: 'Canva' },
+          { name: 'Product Design' },
+          { name: 'Graphics Design' },
+        ],
+      },
+    });
+
+    if (count > 0 && !stale) return;
+
+    if (stale) {
+      await this.prisma.skill.deleteMany();
+    }
 
     await this.prisma.skill.createMany({
       data: [
