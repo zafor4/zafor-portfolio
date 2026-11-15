@@ -25,7 +25,7 @@ export const Hero = () => {
         {/* Info Grid Bar */}
         <div className="border-t border-foreground/15 pt-6 pb-10 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm md:text-base font-medium text-foreground/80">
           <div className="text-left">
-            <span>{profile.title || 'UI/UX Designer & Product Designer'}</span>
+            <span>{profile.title || 'Software Engineer & Programming Instructor'}</span>
           </div>
           <div className="text-center">
             <span>Based in</span><br />
@@ -45,7 +45,7 @@ export const Hero = () => {
           className="mt-6 md:mt-12 max-w-5xl mx-auto text-center px-2 sm:px-4"
         >
           <p className="text-xl sm:text-2xl md:text-3xl lg:text-[38px] font-medium leading-[1.25] tracking-tight text-foreground">
-            {profile.statement || '[A product-focused Designer & Founder from Bangladesh, building high-performance digital experiences.]'}
+            {profile.statement || '[Computer Science and Engineering graduate (CGPA 3.80/4.00) and M.Sc. candidate with professional software engineering experience, published research in Deep Learning & AI, and hands-on teaching experience in React.js and modern Web Development.]'}
           </p>
         </motion.div>
 

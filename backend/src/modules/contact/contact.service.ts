@@ -20,6 +20,14 @@ export class ContactService implements OnModuleInit {
 
     if (!contact) {
       await this.prisma.contact.create({ data });
+      return;
+    }
+
+    if (/humayra|arzooman/i.test(`${contact.email || ''} ${contact.linkedin || ''} ${contact.github || ''}`)) {
+      await this.prisma.contact.update({
+        where: { id: contact.id },
+        data,
+      });
     }
   }
 

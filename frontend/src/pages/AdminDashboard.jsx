@@ -57,7 +57,7 @@ export const AdminDashboard = () => {
   const [isPubModalOpen, setIsPubModalOpen] = useState(false);
   const [editingPub, setEditingPub] = useState(null);
   const [pubForm, setPubForm] = useState({
-    title: '', publisher: 'IEEE International Conference', year: '2025', authors: 'MD ZAFOR IQBAL, et al.', abstract: '', doi: '', pdfUrl: '', link: '', tags: 'UI/UX Design, Cloud Telemetry'
+    title: '', publisher: 'IEEE International Conference', year: '2025', authors: 'MD ZAFOR IQBAL, et al.', abstract: '', doi: '', pdfUrl: '', link: '', tags: 'Deep Learning, Software Engineering'
   });
 
   useEffect(() => {
@@ -343,7 +343,7 @@ export const AdminDashboard = () => {
       }
       setIsPubModalOpen(false);
       setEditingPub(null);
-      setPubForm({ title: '', publisher: 'IEEE International Conference', year: '2025', authors: 'MD ZAFOR IQBAL, et al.', abstract: '', doi: '', pdfUrl: '', link: '', tags: 'UI/UX Design, Cloud Telemetry' });
+      setPubForm({ title: '', publisher: 'IEEE International Conference', year: '2025', authors: 'MD ZAFOR IQBAL, et al.', abstract: '', doi: '', pdfUrl: '', link: '', tags: 'Deep Learning, Software Engineering' });
       await refreshData();
     } catch (err) {
       showNotification('Publication save failed: ' + (err.response?.data?.message || err.message));
@@ -377,7 +377,7 @@ export const AdminDashboard = () => {
       });
     } else {
       setEditingPub(null);
-      setPubForm({ title: '', publisher: 'IEEE International Conference', year: '2025', authors: 'MD ZAFOR IQBAL, et al.', abstract: '', doi: '', pdfUrl: '', link: '', tags: 'UI/UX Design, Cloud Telemetry' });
+      setPubForm({ title: '', publisher: 'IEEE International Conference', year: '2025', authors: 'MD ZAFOR IQBAL, et al.', abstract: '', doi: '', pdfUrl: '', link: '', tags: 'Deep Learning, Software Engineering' });
     }
     setIsPubModalOpen(true);
   };
@@ -416,9 +416,17 @@ export const AdminDashboard = () => {
         <div>
           {/* Brand Header */}
           <div className="flex items-center gap-3.5 mb-8 pb-6 border-b border-border">
-            <div className="w-11 h-11 rounded-2xl bg-foreground text-background flex items-center justify-center font-extrabold text-lg shadow-md">
-              Z
-            </div>
+            {profileForm.avatarUrl ? (
+              <img
+                src={profileForm.avatarUrl}
+                alt=""
+                className="w-11 h-11 rounded-2xl object-cover border border-border shadow-md"
+              />
+            ) : (
+              <div className="w-11 h-11 rounded-2xl bg-foreground text-background flex items-center justify-center font-extrabold text-lg shadow-md">
+                Z
+              </div>
+            )}
             <div>
               <h2 className="font-bold text-base leading-tight text-foreground">CMS Studio</h2>
               <span className="text-xs text-muted-foreground">Zafor Iqbal Admin</span>
@@ -578,7 +586,7 @@ export const AdminDashboard = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
                 {[
                   { key: 'showHero', label: 'Hero / About Section', desc: 'Main banner, display name, and intro statement' },
-                  { key: 'showProjects', label: 'Projects Gallery', desc: 'Showcase grid of websites and UI/UX work' },
+                  { key: 'showProjects', label: 'Projects Gallery', desc: 'Showcase grid of software projects and products' },
                   { key: 'showExperience', label: 'Work Experience', desc: 'Career timeline & leadership history' },
                   { key: 'showSkills', label: 'Skills & Stack Matrix', desc: 'Categorized technical capabilities & tools' },
                   { key: 'showGithub', label: 'GitHub Activity', desc: 'Live contribution heatmap & commit counters' },
@@ -640,7 +648,7 @@ export const AdminDashboard = () => {
                   />
                 </div>
 
-                <div>
+                <div className="md:col-span-2">
                   <label className="block text-xs font-bold text-foreground/90 mb-2">Location</label>
                   <input
                     type="text"
@@ -649,15 +657,80 @@ export const AdminDashboard = () => {
                     className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-sm font-medium focus:outline-none focus:border-foreground transition-colors"
                   />
                 </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-bold text-foreground/90 mb-2">Profile Image</label>
+                  <p className="text-[11px] text-muted-foreground mb-2">Used for favicon and navbar mark. Upload a file or paste an image URL.</p>
+                  <div className="flex items-start gap-4">
+                    <div className="w-16 h-16 rounded-2xl bg-muted border border-border overflow-hidden shrink-0 flex items-center justify-center">
+                      {profileForm.avatarUrl ? (
+                        <img
+                          src={profileForm.avatarUrl}
+                          alt="Profile preview"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-xs font-bold text-muted-foreground">N/A</span>
+                      )}
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={profileForm.avatarUrl || ''}
+                          onChange={e => setProfileForm({ ...profileForm, avatarUrl: e.target.value })}
+                          placeholder="https://... or /assets/..."
+                          className="flex-1 px-4 py-3 bg-muted border border-border rounded-xl text-sm font-medium focus:outline-none focus:border-foreground transition-colors"
+                        />
+                        <label className="px-4 py-3 bg-muted border border-border rounded-xl text-xs font-bold hover:bg-muted/80 cursor-pointer flex items-center gap-1.5 shrink-0">
+                          <Upload size={14} />
+                          <span>Upload</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={e => handleFileUpload(e, url => setProfileForm({ ...profileForm, avatarUrl: url }), 'profile')}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-foreground/90 mb-2">Resume / CV Download Link</label>
-                  <input
-                    type="text"
-                    value={profileForm.resumeUrl || ''}
-                    onChange={e => setProfileForm({ ...profileForm, resumeUrl: e.target.value })}
-                    className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-sm font-medium focus:outline-none focus:border-foreground transition-colors"
-                  />
+                  <label className="block text-xs font-bold text-foreground/90 mb-2">Resume / CV</label>
+                  <p className="text-[11px] text-muted-foreground mb-2">Upload a PDF or paste a download link.</p>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={profileForm.resumeUrl || ''}
+                      onChange={e => setProfileForm({ ...profileForm, resumeUrl: e.target.value })}
+                      placeholder="https://... or /resume.pdf"
+                      className="flex-1 px-4 py-3 bg-muted border border-border rounded-xl text-sm font-medium focus:outline-none focus:border-foreground transition-colors"
+                    />
+                    <label className="px-4 py-3 bg-muted border border-border rounded-xl text-xs font-bold hover:bg-muted/80 cursor-pointer flex items-center gap-1.5 shrink-0">
+                      <Upload size={14} />
+                      <span>Upload</span>
+                      <input
+                        type="file"
+                        accept=".pdf,application/pdf"
+                        onChange={e => handleFileUpload(e, url => setProfileForm({ ...profileForm, resumeUrl: url }), 'documents')}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                  {profileForm.resumeUrl ? (
+                    <a
+                      href={profileForm.resumeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block mt-2 text-[11px] font-semibold text-muted-foreground hover:text-foreground underline underline-offset-2"
+                    >
+                      Open current resume
+                    </a>
+                  ) : null}
                 </div>
               </div>
 

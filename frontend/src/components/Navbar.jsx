@@ -44,9 +44,16 @@ export const Navbar = () => {
         {/* Brand Name */}
         <a 
           href="#" 
-          className="text-base md:text-lg font-semibold tracking-tight text-foreground hover:opacity-80 transition-opacity"
+          className="flex items-center gap-2.5 text-base md:text-lg font-semibold tracking-tight text-foreground hover:opacity-80 transition-opacity"
         >
-          {profileName}
+          {profile.avatarUrl ? (
+            <img
+              src={profile.avatarUrl}
+              alt=""
+              className="w-7 h-7 md:w-8 md:h-8 rounded-full object-cover border border-foreground/10"
+            />
+          ) : null}
+          <span>{profileName}</span>
         </a>
 
         {/* Desktop Nav Links */}

@@ -208,6 +208,25 @@ export const PortfolioProvider = ({ children }) => {
     refreshData();
   }, []);
 
+  useEffect(() => {
+    const avatarUrl = data?.profile?.avatarUrl;
+    if (!avatarUrl) return;
+
+    const ensureIconLink = (rel) => {
+      let link = document.querySelector(`link[rel="${rel}"]`);
+      if (!link) {
+        link = document.createElement('link');
+        link.setAttribute('rel', rel);
+        document.head.appendChild(link);
+      }
+      link.setAttribute('href', avatarUrl);
+    };
+
+    ensureIconLink('icon');
+    ensureIconLink('shortcut icon');
+    ensureIconLink('apple-touch-icon');
+  }, [data?.profile?.avatarUrl]);
+
   return (
     <PortfolioContext.Provider value={{ data, setData, refreshData, loading }}>
       {children}
