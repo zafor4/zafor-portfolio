@@ -69,20 +69,22 @@ export class MinioService implements OnModuleInit {
     } catch (err) {
       this.logger.log(`Bucket '${this.bucketName}' not found. Creating...`);
       await this.s3Client.send(new CreateBucketCommand({ Bucket: this.bucketName }));
-
-      const policy = JSON.stringify({
-        Version: '2012-10-17',
-        Statement: [
-          {
-            Effect: 'Allow',
-            Principal: '*',
-            Action: ['s3:GetObject'],
-            Resource: [`arn:aws:s3:::${this.bucketName}/*`],
-          },
-        ],
-      });
-      await this.s3Client.send(new PutBucketPolicyCommand({ Bucket: this.bucketName, Policy: policy }));
     }
+
+    // Always ensure public read so /media URLs work in the browser
+    const policy = JSON.stringify({
+      Version: '2012-10-17',
+      Statement: [
+        {
+          Effect: 'Allow',
+          Principal: '*',
+          Action: ['s3:GetObject'],
+          Resource: [`arn:aws:s3:::${this.bucketName}/*`],
+        },
+      ],
+    });
+    await this.s3Client.send(new PutBucketPolicyCommand({ Bucket: this.bucketName, Policy: policy }));
+    this.logger.log(`MinIO Bucket '${this.bucketName}' public-read policy applied.`);
   }
 
   async uploadFile(file: Express.Multer.File, folder = 'images'): Promise<{ filename: string; url: string; size: number; key: string }> {
