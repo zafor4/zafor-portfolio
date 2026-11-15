@@ -1,8 +1,8 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { 
-  S3Client, PutObjectCommand, CreateBucketCommand, HeadBucketCommand, 
-  PutBucketPolicyCommand, ListObjectsV2Command, DeleteObjectCommand 
+import {
+  S3Client, PutObjectCommand, CreateBucketCommand, HeadBucketCommand,
+  PutBucketPolicyCommand, ListObjectsV2Command, DeleteObjectCommand
 } from '@aws-sdk/client-s3';
 
 @Injectable()
@@ -10,6 +10,7 @@ export class MinioService implements OnModuleInit {
   private readonly logger = new Logger(MinioService.name);
   private s3Client: S3Client;
   private bucketName: string;
+  private publicBase: string;
 
   constructor(private configService: ConfigService) {
     const endpoint = this.configService.get<string>('MINIO_ENDPOINT', 'localhost');
@@ -17,6 +18,8 @@ export class MinioService implements OnModuleInit {
     const accessKey = this.configService.get<string>('MINIO_ACCESS_KEY', 'minioadmin');
     const secretKey = this.configService.get<string>('MINIO_SECRET_KEY', 'minioadmin123');
     this.bucketName = this.configService.get<string>('MINIO_BUCKET', 'portfolio-assets');
+    // Browser-facing base (nginx proxies /media → minio). Never use Docker hostname "minio" here.
+    this.publicBase = (this.configService.get<string>('MINIO_PUBLIC_URL') || '/media').replace(/\/$/, '');
 
     this.s3Client = new S3Client({
       endpoint: `http://${endpoint}:${port}`,
@@ -27,6 +30,28 @@ export class MinioService implements OnModuleInit {
       },
       forcePathStyle: true,
     });
+  }
+
+  /** Turn internal MinIO URLs into browser-reachable /media/... paths */
+  toPublicUrl(urlOrKey: string): string {
+    if (!urlOrKey) return urlOrKey;
+    if (urlOrKey.startsWith('/media/') || urlOrKey.startsWith('/assets/') || urlOrKey.startsWith('/documents/')) {
+      return urlOrKey;
+    }
+    if (urlOrKey.startsWith('http://') || urlOrKey.startsWith('https://')) {
+      try {
+        const parsed = new URL(urlOrKey);
+        // http://minio:9000/bucket/key or http://localhost:9000/bucket/key → /media/bucket/key
+        if (parsed.hostname === 'minio' || parsed.port === '9000' || parsed.pathname.includes(this.bucketName)) {
+          return `${this.publicBase}${parsed.pathname}`;
+        }
+      } catch {
+        return urlOrKey;
+      }
+      return urlOrKey;
+    }
+    // raw object key
+    return `${this.publicBase}/${this.bucketName}/${urlOrKey.replace(/^\//, '')}`;
   }
 
   async onModuleInit() {
@@ -44,7 +69,7 @@ export class MinioService implements OnModuleInit {
     } catch (err) {
       this.logger.log(`Bucket '${this.bucketName}' not found. Creating...`);
       await this.s3Client.send(new CreateBucketCommand({ Bucket: this.bucketName }));
-      
+
       const policy = JSON.stringify({
         Version: '2012-10-17',
         Statement: [
@@ -64,7 +89,7 @@ export class MinioService implements OnModuleInit {
     await this.ensureBucketExists();
     const cleanFolder = folder.replace(/[^a-zA-Z0-9_-]/g, '') || 'images';
     const filename = `${cleanFolder}/${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-    
+
     await this.s3Client.send(
       new PutObjectCommand({
         Bucket: this.bucketName,
@@ -74,9 +99,7 @@ export class MinioService implements OnModuleInit {
       }),
     );
 
-    const endpoint = this.configService.get<string>('MINIO_ENDPOINT', 'localhost');
-    const port = this.configService.get<number>('MINIO_PORT', 9000);
-    const url = `http://${endpoint}:${port}/${this.bucketName}/${filename}`;
+    const url = `${this.publicBase}/${this.bucketName}/${filename}`;
 
     return { key: filename, filename, url, size: file.size };
   }
@@ -84,8 +107,6 @@ export class MinioService implements OnModuleInit {
   async listFiles() {
     await this.ensureBucketExists();
     const res = await this.s3Client.send(new ListObjectsV2Command({ Bucket: this.bucketName }));
-    const endpoint = this.configService.get<string>('MINIO_ENDPOINT', 'localhost');
-    const port = this.configService.get<number>('MINIO_PORT', 9000);
 
     if (!res.Contents) return [];
 
@@ -99,7 +120,7 @@ export class MinioService implements OnModuleInit {
         filename,
         size: obj.Size,
         lastModified: obj.LastModified,
-        url: `http://${endpoint}:${port}/${this.bucketName}/${obj.Key}`,
+        url: `${this.publicBase}/${this.bucketName}/${obj.Key}`,
       };
     });
   }

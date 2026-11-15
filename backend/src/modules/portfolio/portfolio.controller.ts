@@ -32,13 +32,23 @@ export class PortfolioController {
       this.publicationsService.findAll(),
     ]);
 
+    const fix = (url?: string | null) => (url ? this.minioService.toPublicUrl(url) : url);
+
     return {
-      profile,
-      projects,
+      profile: profile
+        ? { ...profile, avatarUrl: fix(profile.avatarUrl), resumeUrl: fix(profile.resumeUrl) }
+        : profile,
+      projects: projects.map((p) => ({ ...p, image: fix(p.image) })),
       experiences,
       skills,
-      contact,
-      publications,
+      contact: contact
+        ? { ...contact, officeImageUrl: fix(contact.officeImageUrl) }
+        : contact,
+      publications: publications.map((p) => ({
+        ...p,
+        pdfUrl: fix(p.pdfUrl),
+        link: p.link,
+      })),
     };
   }
 

@@ -49,6 +49,7 @@ services:
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin123}
       MINIO_BUCKET: portfolio-assets
+      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-/media}
     ports:
       - "3000:3000"
     depends_on:
