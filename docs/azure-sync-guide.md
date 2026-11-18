@@ -10,6 +10,9 @@ This project serves **only** `zaforiq.me` / `www.zaforiq.me`.
 
 On your Mac:
 
+
+hbefiubreifw
+wiufediewfbib
 ```bash
 ssh-keygen -t ed25519 -f ~/.ssh/zaforiq-deploy -N ""
 ssh-copy-id -i ~/.ssh/zaforiq-deploy.pub zaforiqbal@4.252.0.112
