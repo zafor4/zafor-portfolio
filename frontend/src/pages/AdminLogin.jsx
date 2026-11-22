@@ -4,8 +4,8 @@ import { loginAdmin } from '../services/api';
 import { Lock, Mail, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export const AdminLogin = () => {
-  const [email, setEmail] = useState('admin@zaforiq.me');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -48,7 +48,7 @@ export const AdminLogin = () => {
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-5">
+        <form onSubmit={handleLogin} className="space-y-5" autoComplete="off">
           <div>
             <label className="block text-xs font-semibold text-foreground/80 uppercase tracking-wider mb-2">
               Admin Email
@@ -59,9 +59,11 @@ export const AdminLogin = () => {
               </div>
               <input
                 type="email"
+                name="admin-email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                autoComplete="off"
                 className="w-full pl-10 pr-4 py-3 bg-muted border border-border rounded-xl text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20"
                 placeholder="admin@zaforiq.me"
               />
@@ -78,9 +80,11 @@ export const AdminLogin = () => {
               </div>
               <input
                 type="password"
+                name="admin-password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
                 className="w-full pl-10 pr-4 py-3 bg-muted border border-border rounded-xl text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20"
                 placeholder="••••••••"
               />
