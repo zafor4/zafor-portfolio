@@ -76,6 +76,12 @@ services:
     depends_on:
       - frontend
       - backend
+    networks:
+      - default
+
+networks:
+  default:
+    name: portfolio_default
 
 volumes:
   postgres_data:

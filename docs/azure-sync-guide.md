@@ -2,7 +2,7 @@
 
 A push to `main` builds the frontend and backend images on GitHub and updates `zaforiq.me` on the Azure VM. The VM pulls those images and restarts only those two containers. Postgres, MinIO, and nginx stay running.
 
-This project serves **only** `zaforiq.me` / `www.zaforiq.me`.
+This stack serves `zaforiq.me` / `www.zaforiq.me`. The same VPS nginx also reverse-proxies **FileShare** at `https://files.zaforiq.me` (separate Compose stack; see the FileShare repo `deploy/vps.md`).
 
 ---
 
@@ -10,9 +10,6 @@ This project serves **only** `zaforiq.me` / `www.zaforiq.me`.
 
 On your Mac:
 
-
-hbefiubreifw
-wiufediewfbib
 ```bash
 ssh-keygen -t ed25519 -f ~/.ssh/zaforiq-deploy -N ""
 ssh-copy-id -i ~/.ssh/zaforiq-deploy.pub zaforiqbal@4.252.0.112
